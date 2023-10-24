@@ -1,0 +1,55 @@
+trigger:
+  - none
+
+resources:
+  pipelines:
+  - pipeline: networking_aquarius_official
+    source: "Networking-Aquarius-Official"
+    trigger:
+      branches:
+        include:
+          - master
+
+variables:
+  - name: buildConfiguration
+    value: Release
+  - name: releaseBranchName
+    value: master
+#  - name: STORAGE_ACCOUNT
+#    value: infrae2esaue3orv
+#  - name: STORAGE_CONTAINER
+#    value: obp-signed-binaries
+#  - name: STORAGE_SERVICE_CONNECTION
+#    value: "Azure Network Agent - Test (2)"
+  - name: SOURCE_REPO
+    value: $[resources.repositories.self.url]
+  - name: SOURCE_REF
+    value: $[resources.repositories.self.version]
+  - template: ./obp-signed-binaries/environment-matrix.vars.yaml
+
+stages:
+- stage: prepare_stage
+  displayName: Initialize
+  jobs:
+  - job: prepare_version
+    displayName: Prepare Version Info
+    steps:
+      - checkout: none
+
+      - download: networking_aquarius_official
+        artifact: drop_sign_binaries_sign_each_binary
+        patterns: "@(azure-vnet-cni-)@(windows)*.zip"
+
+      - bash: |
+          FILENAME=$(find $(Pipeline.Workspace) -maxdepth 4 -name "azure-vnet*.zip" | head -n 1)
+          echo "Found file: $FILENAME"
+          echo "##vso[task.setvariable variable=filename]$FILENAME"
+        displayName: Verify Version-File Name
+
+      - template: ./obp-signed-binaries/get-version-from-filename.steps.yaml
+        parameters:
+          filename: $(filename)
+
+- template: ./obp-signed-binaries/upload-signed-binaries.stages.yaml
+
+- template: ./obp-signed-binaries/publish-nuget-packages.stages.yaml

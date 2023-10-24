@@ -1,0 +1,64 @@
+parameters:
+- name: storage_service_connection
+  type: string
+- name: storage_account
+  type: string
+- name: storage_container
+  type: string
+
+jobs:
+# The $(Build.ArtifactStagingDirectory) and $(Common.TestResultsDirectory) are always deleted and recreated prior to every build.
+- job: 
+  displayName: Upload - ${{ parameters.storage_account }}/${{ parameters.storage_container }}
+  workspace:
+    clean: all
+  variables:
+    VERSION: $[ dependencies.prepare.outputs['get_version.version'] ]
+  strategy:
+    matrix:
+      azure_cni_singletenancy:
+        urls: |
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-linux-arm64-$(VERSION).tgz
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-linux-amd64-$(VERSION).tgz
+        name: Azure CNI Single Tenancy - Linux
+      azure_cni_swift:
+        urls: |
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-swift-linux-arm64-$(VERSION).tgz
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-swift-linux-amd64-$(VERSION).tgz
+        name: Azure CNI Swift Single Tenancy - Linux
+      azure_cni_overlay:
+        urls: |
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-overlay-linux-arm64-$(VERSION).tgz
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-overlay-linux-amd64-$(VERSION).tgz
+        name: Azure CNI Overlay Single Tenancy - Linux
+  steps:
+  - checkout: self
+    fetchDepth: 1
+    clean: true
+
+  - template: ./get-utility-scripts.steps.yaml
+    parameters:
+      service_connection: ${{ parameters.storage_service_connection }}
+
+  - bash: | 
+      set -e
+      . "$ACN_UTILS"
+
+      for jlink in $(printf "$URLS"); do
+        aquarius::tools::say group "Downloading $(basename $jlink)"
+        aquarius::tools::retry 3 wget -v "$jlink" -P "$DESTINATION_PATH"
+        aquarius::tools::say endgroup
+      done
+    displayName: Download $(name) Tar Files
+    env:
+      DESTINATION_PATH: $(artifact_path)
+      URLS: $(urls)
+
+  - template: ./upload-batch-binaries.steps.yaml
+    parameters:
+      source_path: $(artifact_path)
+      blob_prefix: $(VERSION)/binaries 
+      storage_account: ${{ parameters.storage_account }}
+      storage_container: ${{ parameters.storage_container }}
+      storage_service_connection: ${{ parameters.storage_service_connection }}
+      addtl_opts: '--overwrite'

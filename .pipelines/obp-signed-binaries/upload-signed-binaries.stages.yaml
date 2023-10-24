@@ -1,0 +1,64 @@
+parameters:
+  - name: deployment_config
+    type: object
+    default:
+    - environmentName: Public
+      storage:
+        # acnreleaseartifacts
+        # Plus service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+      - accountName: infrae2esaue3orv
+        containerName: azure-cni-acnreleaseartifacts
+        blobPrefix: $(VERSION)/binaries
+        serviceConnection: "Azure Network Agent - Test (2)"
+        # k8sreleases
+        # Plus service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+      - accountName: infrae2esaue3orv
+        containerName: azure-cni-k8sreleases
+        blobPrefix: $(VERSION)/binaries
+        serviceConnection: "Azure Network Agent - Test (2)"
+    - environmentName: Mooncake
+      storage:
+        # k8sartifacts
+        # plus a mooncake subscription service connection
+      - accountName: infrae2esaue3orv
+        containerName: azure-cni
+        blobPrefix: $(VERSION)/binaries
+        serviceConnection: "Azure Network Agent - Test (2)"
+    - environmentName: Airgap
+      storage:
+        # accountName aksteleportussec
+        # plus ussec service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+      - accountName: infrae2esaue3orv
+        containerName: aksteleportussec
+        blobPrefix: upstream/azure-cni
+        serviceConnection: "Azure Network Agent - Test (2)"
+        # accountName aksteleportusnat
+        # plus usnat service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+      - accountName: infrae2esaue3orv
+        containerName: aksteleportusnat
+        blobPrefix: upstream/azure-cni
+        serviceConnection: "Azure Network Agent - Test (2)"
+
+stages:
+- ${{ each env in parameters.deployment_config }}:
+  - ${{ if and(gt(length(env), 0), ne(env.storage, '')) }}:
+    - stage: 
+      dependsOn: prepare_stage
+      displayName: Upload Signed Binaries - ${{ env.environmentName }}
+      variables:
+        VERSION: $[ stageDependencies.prepare_stage.prepare_version.outputs['get_version.version'] ]
+      jobs:
+      - ${{ each storage_config in env.storage }}:
+        - template: ./upload-signed-binaries-linux.jobs.yaml
+          parameters: 
+            storage_account: ${{ storage_config.accountName }}
+            storage_container: ${{ storage_config.containerName }}
+            storage_service_connection: ${{ storage_config.serviceConnection }}
+            storage_path: ${{ storage_config.blobPrefix }}
+      
+        - template: ./upload-signed-binaries-windows.jobs.yaml
+          parameters: 
+            storage_account: ${{ storage_config.accountName }}
+            storage_container: ${{ storage_config.containerName }}
+            storage_service_connection: ${{ storage_config.serviceConnection }}
+            storage_path: ${{ storage_config.blobPrefix }}

@@ -1,0 +1,22 @@
+parameters:
+  - name: file_path
+    type: string
+
+  - name: storage_account
+    type: string
+  - name: storage_container 
+    type: string
+
+tasks:
+- task: AzureFileCopy@4
+  displayName: Upload
+  inputs:
+    SourcePath: $(file_path)
+    azureSubscription: My Service Connection
+    Destination: AzureBlob
+    storage: ${{ parameters.storage_account }}
+    ContainerName: $${{ parameters.storage_container }}
+    BlobPrefix: upload
+    AdditionalArgumentsForBlobCopy: |
+      --recursive=true
+      --overwrite=true

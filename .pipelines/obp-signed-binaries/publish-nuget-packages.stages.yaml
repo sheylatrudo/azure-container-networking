@@ -1,0 +1,76 @@
+stages:
+- stage: publish_nuget_stage
+  displayName: Publish Nuget Packages
+  dependsOn: prepare_stage
+  variables:
+    VERSION: $[ stageDependencies.prepare_stage.prepare_version.outputs['get_version.version'] ]
+  jobs:
+  # The $(Build.ArtifactStagingDirectory) and $(Common.TestResultsDirectory) are always deleted and recreated prior to every build.
+  - job: 
+    displayName: Publish Nuget Packages
+    workspace:
+      clean: all
+    strategy:
+      matrix:
+        azure_cni:
+          nuget_feed: "b32aa71e-8ed2-41b2-9d77-5bc261222004/95d6b69b-00c0-4d30-98f9-122e08393820"
+          artifact: drop_package_azure_cni_nuget
+          file_pattern: "*AzureCNI*.nupkg"
+          name: Azure CNI
+        azure_cns:
+          nuget_feed: "b32aa71e-8ed2-41b2-9d77-5bc261222004/95d6b69b-00c0-4d30-98f9-122e08393820"
+          artifact: drop_package_azure_cns_nuget
+          file_pattern: "*AzureCNS*.nupkg"
+          name: Azure CNS
+        azure_dnc:
+          nuget_feed: "b32aa71e-8ed2-41b2-9d77-5bc261222004/95d6b69b-00c0-4d30-98f9-122e08393820"
+          artifact: drop_package_azure_dnc_nuget
+          file_pattern: "*AzureDNC*.nupkg"
+          name: Azure DNC
+        azure_cns_sf:
+          nuget_feed: "b32aa71e-8ed2-41b2-9d77-5bc261222004/95d6b69b-00c0-4d30-98f9-122e08393820"
+          artifact: drop_package_azure_cns_sf_nuget
+          file_pattern: "*AzureCNSSF*.nupkg"
+          name: Azure CNS SF
+        azure_dnc_sf:
+          nuget_feed: "b32aa71e-8ed2-41b2-9d77-5bc261222004/95d6b69b-00c0-4d30-98f9-122e08393820"
+          artifact: drop_package_azure_sfdnc_nuget
+          file_pattern: "*AzureSFDNC*.nupkg"
+          name: Azure DNC SF
+        azure_dnc_sf_v2:
+          nuget_feed: "b32aa71e-8ed2-41b2-9d77-5bc261222004/95d6b69b-00c0-4d30-98f9-122e08393820"
+          artifact: drop_package_azure_sfdncv2_nuget
+          file_pattern: "*AzureSFDNC*.nupkg"
+          name: Azure DNC SF v2
+        azure_dnc_cleanup:
+          nuget_feed: "b32aa71e-8ed2-41b2-9d77-5bc261222004/95d6b69b-00c0-4d30-98f9-122e08393820"
+          artifact: drop_package_azure_dnc_cleanup_service_nuget
+          file_pattern: "*AzureSFDncCleanupSvc*.nupkg"
+          name: Azure DNC Cleanup
+    steps:
+    - checkout: none
+
+    - download: networking_aquarius_official
+      artifact: $(artifact)
+      patterns: $(file_pattern)
+
+    - task: NuGetAuthenticate@1
+      displayName: Authenticate to Nuget
+
+    - bash: |
+        echo "Feed: $(nuget_feed)"
+        echo "packages to push : $(artifact)/$(file_pattern)"
+        ls -l $(Agent.BuildDirectory)/networking_aquarius_official/$(artifact)
+      displayName: Verify Directory Contents
+
+  #  - task: NuGetCommand@2
+  #    displayName: Push $(name) NuGet
+  #    inputs:
+  #      command: push
+  #      publishVstsFeed: $(nuget_feed)
+  #      nugetFeedType: internal
+  #      packagesToPush: $(artifact)/$(file_pattern)
+  #      # Allow duplicates to be skipped
+  #      allowPackageConflicts: true
+  #      publishPackageMetadata: true
+  #      verbosityPush: Detailed

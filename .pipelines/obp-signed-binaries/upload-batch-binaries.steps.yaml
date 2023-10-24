@@ -1,0 +1,41 @@
+parameters:
+- name: source_path
+  type: string
+- name: blob_prefix
+  type: string
+- name: addtl_opts
+  type: string
+  default: ''
+
+- name: storage_service_connection
+  type: string
+- name: storage_account
+  type: string
+- name: storage_container
+  type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: Upload Binaries
+    env:
+      SOURCE_PATH: ${{ parameters.source_path }}
+      BLOB_PREFIX: ${{ parameters.blob_prefix }}
+      CONTAINER_NAME: ${{ parameters.storage_container }}
+      STORAGE_ACCOUNT: ${{ parameters.storage_account }}
+      ADDTL_OPTS: ${{ parameters.addtl_opts }}
+    inputs:
+      azureSubscription: ${{ parameters.storage_service_connection }}
+      scriptType: bash
+      scriptLocation: inlineScript
+      addSpnToEnvironment: true
+      inlineScript: |
+        set -e
+        . "$ACN_UTILS"
+
+        aquarius::tools::say group "Verify Container ($CONTAINER_NAME) Existence"
+        aquarius::tools::retry 3 az storage container create --name "$CONTAINER_NAME" --account-name "$STORAGE_ACCOUNT"
+        aquarius::tools::say endgroup
+        aquarius::tools::say group "Upload Blobs to \'$CONTAINER_NAME/$BLOB_PREFIX\'"
+        aquarius::tools::retry 3 az storage blob upload-batch --destination "$CONTAINER_NAME" \
+          --destination-path "$BLOB_PREFIX" --source "$SOURCE_PATH" --account-name "$STORAGE_ACCOUNT" $ADDTL_OPTS
+        aquarius::tools::say endgroup

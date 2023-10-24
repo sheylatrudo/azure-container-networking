@@ -1,0 +1,37 @@
+variables:
+  - name: WIN_BINARY_UPLOAD_MATRIX:
+    value:
+      azure_cni_singletenancy:
+        artifact: drop_sign_binaries_sign_each_binary
+        file_pattern: "@(azure-vnet-cni-)@(windows)*.zip"
+        name: Azure CNI Single Tenancy
+      azure_cni_multitenancy:
+        artifact: drop_sign_binaries_sign_each_binary
+        file_pattern: "@(azure-vnet-cni-multitenancy-)*.zip"
+        name: Azure CNI Multi Tenancy
+      azure_cni_swift:
+        artifact: drop_sign_binaries_sign_each_binary
+        file_pattern: "@(azure-vnet-cni-swift-)@(windows)*.zip"
+        name: Azure CNI Swift Single Tenancy
+      azure_cni_overlay:
+        artifact: drop_sign_binaries_sign_each_binary
+        file_pattern: "@(azure-vnet-cni-overlay-)@(windows)*.zip"
+        name: Azure CNI Overlay Single Tenancy
+
+  - name: BINARY_UPLOAD_MATRIX:
+    value:
+      azure_cni_singletenancy:
+        urls: |
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-linux-arm64-$(VERSION).tgz
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-linux-amd64-$(VERSION).tgz
+        name: Azure CNI Single Tenancy - Linux
+      azure_cni_swift:
+        urls: |
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-swift-linux-arm64-$(VERSION).tgz
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-swift-linux-amd64-$(VERSION).tgz
+        name: Azure CNI Swift Single Tenancy - Linux
+      azure_cni_overlay:
+        urls: |
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-overlay-linux-arm64-$(VERSION).tgz
+          https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-overlay-linux-amd64-$(VERSION).tgz
+        name: Azure CNI Overlay Single Tenancy - Linux

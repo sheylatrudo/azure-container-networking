@@ -1,0 +1,31 @@
+parameters:
+- name: service_connection
+  type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: Get Utility Script
+    env:
+      SOURCE_PATH: .pipelines/scripts/build-utils.sh
+      # Destination in the path
+      DESTINATION_PATH: /home/vsts/.local/bin/build-utils.sh
+      ADO_SYSTEM_ACCESS_TOKEN: $(System.AccessToken)
+    inputs:
+      azureSubscription: ${{ parameters.service_connection }}
+      scriptType: bash
+      scriptLocation: inlineScript
+      addSpnToEnvironment: true
+      inlineScript: |
+        set -e
+        az account show
+
+        echo "##[group]Repo Directory"
+        ls -la
+        echo "##[endgroup]"
+        mkdir -p $(dirname "$DESTINATION_PATH")
+        cp "$SOURCE_PATH" "$DESTINATION_PATH"
+        chmod +x "$DESTINATION_PATH"
+        echo "##vso[task.setvariable variable=ACN_UTILS]$DESTINATION_PATH"
+        echo "##[group]File Contents"
+        cat "$DESTINATION_PATH"
+        echo "##[endgroup]"
