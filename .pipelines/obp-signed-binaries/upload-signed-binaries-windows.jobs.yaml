@@ -5,6 +5,8 @@ parameters:
   type: string
 - name: storage_container
   type: string
+- name: storage_path
+  type: string
 
 jobs:
 # The $(Build.ArtifactStagingDirectory) and $(Common.TestResultsDirectory) are always deleted and recreated prior to every build.
@@ -13,8 +15,8 @@ jobs:
   workspace:
     clean: all
   dependsOn: prepare
-  variables:
-    VERSION: $[ dependencies.prepare.outputs['get_version.version'] ]
+#  variables:
+#    VERSION: $[ dependencies.prepare.outputs['get_version.version'] ]
   uses:
     repositories:
       - self
@@ -52,7 +54,7 @@ jobs:
   - template: ./upload-batch-binaries.steps.yaml
     parameters:
       source_path: $(Pipeline.Workspace)/networking_aquarius_official/$(artifact)
-      blob_prefix: $(VERSION)/binaries 
+      blob_prefix: ${{ parameters.storage_path }}
       storage_account: ${{ parameters.storage_account }}
       storage_container: ${{ parameters.storage_container }}
       storage_service_connection: ${{ parameters.storage_service_connection }}

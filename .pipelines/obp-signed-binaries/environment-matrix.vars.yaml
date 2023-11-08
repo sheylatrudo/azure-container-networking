@@ -1,0 +1,43 @@
+
+variables:
+  - name: ENVIRONMENT_MATRIX
+    value: |
+      public:
+        environmentName: Public
+        storage:
+            # acnreleaseartifacts
+            # Plus service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+          - accountName: infrae2esaue3orv
+            containerName: azure-cni-acnreleaseartifacts
+            blobPrefix: $(VERSION)/binaries
+            serviceConnection: "Azure Network Agent - Test (2)"
+            # k8sreleases
+            # Plus service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+          - accountName: infrae2esaue3orv
+            containerName: azure-cni-k8sreleases
+            blobPrefix: $(VERSION)/binaries
+            serviceConnection: "Azure Network Agent - Test (2)"
+      mooncake:
+        environmentName: Mooncake
+        storage:
+            # k8sartifacts
+            # plus a mooncake subscription service connection
+          - accountName: infrae2esaue3orv
+            containerName: azure-cni
+            blobPrefix: $(VERSION)/binaries
+            serviceConnection: "Azure Network Agent - Test (2)"
+      airgap:
+        environmentName: Airgap
+        storage:
+            # accountName aksteleportussec
+            # plus ussec service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+          - accountName: infrae2esaue3orv
+            containerName: aksteleportussec
+            blobPrefix: upstream/azure-cni
+            serviceConnection: "Azure Network Agent - Test (2)"
+            # accountName aksteleportusnat
+            # plus usnat service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+          - accountName: infrae2esaue3orv
+            containerName: aksteleportusnat
+            blobPrefix: upstream/azure-cni
+            serviceConnection: "Azure Network Agent - Test (2)"

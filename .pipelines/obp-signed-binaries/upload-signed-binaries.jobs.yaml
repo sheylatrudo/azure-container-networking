@@ -1,0 +1,25 @@
+parameters:
+- name: environment
+  type: string
+
+stages:
+- stage: 
+  dependsOn: prepare_stage
+  displayName: Upload Signed Binaries - $(ENVIRONMENT_MATRIX['${{ parameters.environment }}']['environmentName'])
+  variables:
+    VERSION: $[ stageDependencies.prepare_stage.prepare_version.outputs['get_version.version'] ]
+  jobs:
+  ${{ each item in parameters.storage }}:
+    - template: ./opb-signed-binaries/upload-signed-binaries-linux.jobs.yaml
+      parameters: 
+        storage_account: ${{ item.accountName }}
+        storage_container: ${{ item.containerName }}
+        storage_service_connection: ${{ item.storageServiceConnection }}
+        storage_path: blobPrefix
+  
+    - template: ./opb-signed-binaries/upload-signed-binaries-windows.jobs.yaml
+      parameters: 
+        storage_account: ${{ item.accountName }}
+        storage_container: ${{ item.containerName }}
+        storage_service_connection: ${{ item.storageServiceConnection }}
+        storage_path: blobPrefix

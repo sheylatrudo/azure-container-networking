@@ -5,6 +5,8 @@ parameters:
   type: string
 - name: storage_container
   type: string
+- name: storage_path
+  type: string
 
 jobs:
 # The $(Build.ArtifactStagingDirectory) and $(Common.TestResultsDirectory) are always deleted and recreated prior to every build.
@@ -12,8 +14,8 @@ jobs:
   displayName: Upload - ${{ parameters.storage_account }}/${{ parameters.storage_container }}
   workspace:
     clean: all
-  variables:
-    VERSION: $[ dependencies.prepare.outputs['get_version.version'] ]
+#  variables:
+#    VERSION: $[ dependencies.prepare.outputs['get_version.version'] ]
   strategy:
     matrix:
       azure_cni_singletenancy:
@@ -51,13 +53,13 @@ jobs:
       done
     displayName: Download $(name) Tar Files
     env:
-      DESTINATION_PATH: $(artifact_path)
+      DESTINATION_PATH: upload
       URLS: $(urls)
 
   - template: ./upload-batch-binaries.steps.yaml
     parameters:
-      source_path: $(artifact_path)
-      blob_prefix: $(VERSION)/binaries 
+      source_path: upload
+      blob_prefix: ${{ parameters.storage_path }}
       storage_account: ${{ parameters.storage_account }}
       storage_container: ${{ parameters.storage_container }}
       storage_service_connection: ${{ parameters.storage_service_connection }}
