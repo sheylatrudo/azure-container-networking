@@ -25,7 +25,9 @@ variables:
     value: $[resources.repositories.self.url]
   - name: SOURCE_REF
     value: $[resources.repositories.self.version]
-  - template: ./obp-signed-binaries/environment-matrix.vars.yaml
+
+parameters:
+  - template: ./obp-signed-binaries/environment-matrix.params.yaml
 
 stages:
 - stage: prepare_stage
