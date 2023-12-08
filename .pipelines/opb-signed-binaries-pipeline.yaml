@@ -25,7 +25,7 @@ variables:
     value: $[resources.repositories.self.url]
   - name: SOURCE_REF
     value: $[resources.repositories.self.version]
-  - template: ./opb-signed-binaries/environment-matrix.vars.yaml
+  - template: ./obp-signed-binaries/environment-matrix.params.yaml
 
 stages:
 - stage: prepare_stage
@@ -37,18 +37,30 @@ stages:
       - checkout: none
 
       - download: networking_aquarius_official
-        artifact: drop_sign_binaries_sign_each_binary
-        patterns: "@(azure-vnet-cni-)@(windows)*.zip"
+        artifact: drop_download_github
+        patterns: "@(azure-vnet)"
 
       - bash: |
-          FILENAME=$(find $(Pipeline.Workspace) -maxdepth 4 -name "azure-vnet*.zip" | head -n 1)
-          echo "Found file: $FILENAME"
-          echo "##vso[task.setvariable variable=filename]$FILENAME"
-        displayName: Verify Version-File Name
+          VNET_BIN=$(find $(Pipeline.Workspace) -type f -maxdepth 4 -name 'azure-vnet')
+          echo "Found Binary: $VNET_BIN"
+          chmod +x "$VNET_BIN"
+          VERSION=$("$VNET_BIN" --version | awk '{ print $4 }')
 
-      - template: ./obp-signed-binaries/get-version-from-filename.steps.yaml
-        parameters:
-          filename: $(filename)
+          echo "##vso[task.setvariable variable=version;isOutput=true;]${VERSION}"
+          echo "Setting version: $VERSION"
+        name: get_version
+        displayName: Get Release Version
+
+# Can use the above method or this method which uses the filename to get the version.        
+#      - bash: |
+#          FILENAME=$(find $(Pipeline.Workspace) -maxdepth 4 -name "azure-vnet*.zip" | head -n 1)
+#          echo "Found file: $FILENAME"
+#          echo "##vso[task.setvariable variable=filename]$FILENAME"
+#        displayName: Verify Version-File Name
+#
+#      - template: ./obp-signed-binaries/get-version-from-filename.steps.yaml
+#        parameters:
+#          filename: $(filename)
 
 - ${{ each env in variables.ENVIRONMENT_MATRIX }}:
   - template: ./opb-signed-binaries/upload-signed-binaries.jobs.yaml
