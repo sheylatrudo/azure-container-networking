@@ -28,18 +28,7 @@
 trigger:
   - none
 
-  # Change to an official service connection
-    #endpoint: "Azure Container Networking - readonly"
-    #name: Azure/azure-container-networking
-    #ref: refs/heads/master
 resources:
-  repositories:
-    - repository: acn_master
-      type: github
-      endpoint: "sheylatrudo"
-      name: sheylatrudo/azure-container-networking
-      ref: refs/heads/smtrudo/obp-signed-binaries
-
   pipelines:
   - pipeline: networking_aquarius_official
     source: "Networking-Aquarius-Official"
@@ -47,9 +36,16 @@ resources:
       branches:
         include:
           - master
-
-variables:
-  - template: ./obp-signed-binaries/environment-matrix.params.yaml
+  repositories:
+  # Change to an official service connection
+  - repository: acn_master
+    type: github
+    #endpoint: "Azure Container Networking - readonly"
+    endpoint: "sheylatrudo"
+    #name: Azure/azure-container-networking
+    name: sheylatrudo/azure-container-networking
+    #ref: refs/heads/master
+    ref: smtrudo/obp-signed-binaries-pipeline
 
 stages:
   # TODO: May want to add a ManualValidation task to prepare_stage for manual queues.
@@ -67,10 +63,10 @@ stages:
   #         instructions: 'Please validate the manual queue.'
   #         onTimeout: 'reject'
 - stage: prepare_stage
-  displayName: Initialize
+  displayName: Upload Nuget and Signed Binaries
   jobs:
   - job: prepare_version
-    displayName: Prepare Version Info
+    displayName: Prepare
     steps:
       # If the utility script is not used, checkout should be none.
       # The acn_master resource should also be removed.
@@ -90,9 +86,16 @@ stages:
           VERSION=$("$VNET_BIN" --version | awk '{ print $4 }')
 
           aquarius::tools::var version output "${VERSION}"
+          echo "made it here"
         name: get_version
         displayName: Get Release Version
 
 - template: ./obp-signed-binaries/upload-signed-binaries.stages.yaml
 
-- template: ./obp-signed-binaries/publish-nuget-packages.stages.yaml
+#- stage: publish_nuget_stage
+#  displayName: Publish Nuget Packages
+#  dependsOn: prepare_stage
+#  variables:
+#    VERSION: $[
+#  jobs:
+#  - template: ./opb-signed-binaries/publish-nuget-packages.jobs.yaml

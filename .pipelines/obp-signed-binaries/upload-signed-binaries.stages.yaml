@@ -50,6 +50,9 @@
 #variables:
   #  - template: ./obp-signed-binaries/environment-matrix.params.yaml
 
+extends:
+  template: ./environment-matrix.params.yaml
+
 stages:
 - ${{ each env in parameters.deployment_config }}:
   - ${{ if and(gt(length(env), 0), ne(env.storage, '')) }}:

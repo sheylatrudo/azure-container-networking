@@ -9,7 +9,7 @@
 #     <scope: current job>
 ######################################################################################################
 steps:
-  - checkout: networking_aquarius_official
+  - checkout: acn_master
     path: util-script-download
     fetchDepth: 1
     fetchTags: false
@@ -19,7 +19,7 @@ steps:
       set -e
 
       echo "##[group]Repo Directory"
-      ls -la
+      ls -la $(Agent.BuildDirectory)/util-script-download
       echo "##[endgroup]"
 
       mkdir -p $(dirname "$DESTINATION_PATH")
@@ -33,5 +33,5 @@ steps:
     displayName: Get Utility Script
     condition: and(succeeded(), eq(variables.ACN_UTILS, ''))
     env:
-      SOURCE_PATH: util-script-download/.pipelines/scripts/build-utils.sh
+      SOURCE_PATH: $(Agent.BuildDirectory)/util-script-download/.pipelines/scripts/build-utils.sh
       DESTINATION_PATH: /home/vsts/.local/bin/build-utils.sh

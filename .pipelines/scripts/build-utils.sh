@@ -67,17 +67,6 @@ aquarius::internal::print_subprocess()  {
   return "$?"
 }
 
-aquarius::internal::required_arg()  {
-  local arg_name="${1}"
-  local arg_in="${@:2}"
-  if [[ "${arg_name}" != endgroup ]] && [[ -z "${arg_in}" ]]; then
-    aquarius::tools::say error "(${FUNCNAME[1]}): ${arg_name} must be defined."
-    return 1
-  else
-    printf "%s" "${arg_in[@]}"
-  fi
-}
-
 aquarius::internal::array_contains()  {
   local value="${1}"
   local arr="${@:2}"
@@ -99,7 +88,7 @@ aquarius::tools::say()  {
   local what
 
   aquarius::internal::set_errexit
-  say_type=$(aquarius::internal::required_arg say_type "${1}")
+  say_type="${1}"
   aquarius::internal::verify_say_type "$say_type"
   shift
 
@@ -127,6 +116,7 @@ aquarius::tools::act()  {
 }
 
 aquarius::tools::var()  {
+echo "calling aquarius::tools::var"
   local length
   local varname
   local optone
@@ -135,7 +125,7 @@ aquarius::tools::var()  {
 
   aquarius::internal::set_errexit
   length="${#@}"
-  varname=$(aquarius::internal::required_arg "varname" "${1}")
+  varname="${1}"
   optone="${@:2}"
   opttwo="${@:3}"
 
@@ -168,7 +158,7 @@ aquarius::tools::var()  {
   local esc="#"
   local vesc="vso"
   aquarius::tools::say debug "[${setopts}]=${var}"
-  echo "#${esc}${vesc}[task.setvariable ${setopts}]${var}" >&$na_utils_pipe_file
+  echo "#${esc}${vesc}[task.setvariable ${setopts}]${var}"
   return 0
 }
 
@@ -207,7 +197,7 @@ aquarius::tools::retry()  {
   local cmd
 
   aquarius::internal::set_errexit
-  retries=$(aquarius::internal::required_arg "retries" "${1}")
+  retries="${1}"
   shift
   cmd=$(aquarius::internal::required_arg "cmd" "${@}")
   aquarius::internal::unset_errexit
@@ -235,7 +225,7 @@ aquarius::tools::get_branches()  {
   local git_root_dir
 
   aquarius::internal::set_errexit
-  git_root_dir=$(aquarius::internal::required_arg "git_root_dir" "${1}")
+  git_root_dir="${1}"
 
   local git_revision
   local result
@@ -250,7 +240,7 @@ aquarius::tools::get_tags()  {
   local git_root_dir
 
   aquarius::internal::set_errexit
-  git_root_dir=$(aquarius::internal::required_arg "git_root_dir" "${1}")
+  git_root_dir="${1}"
 
   local git_revision
   local result
