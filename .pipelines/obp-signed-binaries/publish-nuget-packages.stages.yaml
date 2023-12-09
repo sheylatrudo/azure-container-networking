@@ -1,3 +1,19 @@
+############################################################################################################################################
+# Publish NuGet Packages (Stages) Template
+############################################################################################################################################
+# Publishes a predefined list of signed nuget packages to the ACN package feed.
+#
+# Depends On:
+#   prepare_stage - For the package version variable.
+#
+# Matrix Schema:
+#   [package-identifier] - An identifying value for the package to publish. Cannot be duplicated.
+#     nuget_feed   - The feed id to publish the package to.
+#     artifact     - The artifact from the dependent pipeline (Networking-Aquarius-Official) corresponding to the target package to publish.
+#     file_pattern - A filter for any unneccesary files that might also be included in the artifact. 
+#                    Equal to 'patterns' in [artifact download task](https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/steps-download?view=azure-pipelines).
+#     name         - Friendly name to call the package. Used only for display.
+############################################################################################################################################
 stages:
 - stage: publish_nuget_stage
   displayName: Publish Nuget Packages
@@ -5,7 +21,6 @@ stages:
   variables:
     VERSION: $[ stageDependencies.prepare_stage.prepare_version.outputs['get_version.version'] ]
   jobs:
-  # The $(Build.ArtifactStagingDirectory) and $(Common.TestResultsDirectory) are always deleted and recreated prior to every build.
   - job: 
     displayName: Publish Nuget Packages
     workspace:
@@ -57,6 +72,8 @@ stages:
     - task: NuGetAuthenticate@1
       displayName: Authenticate to Nuget
 
+    # A test step. Can be removed once integrated with the regular pipeline.
+    # Uncomment the Push NuGet task as well.
     - bash: |
         echo "Feed: $(nuget_feed)"
         echo "packages to push : $(artifact)/$(file_pattern)"

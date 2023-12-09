@@ -1,31 +1,37 @@
-parameters:
-- name: service_connection
-  type: string
-
+######################################################################################################
+# Get Utility Scripts (Steps) Template
+######################################################################################################
+# Used for retrieving the pipeline utility script that simplifies some Azure DevOps pipeline functions.
+# Adds a reference to the utility's executable into the current job.
+#
+# Outputs:
+#   ACN_UTILS: The path to the utility script executable.
+#     <scope: current job>
+######################################################################################################
 steps:
-  - task: AzureCLI@2
-    displayName: Get Utility Script
-    env:
-      SOURCE_PATH: .pipelines/scripts/build-utils.sh
-      # Destination in the path
-      DESTINATION_PATH: /home/vsts/.local/bin/build-utils.sh
-      ADO_SYSTEM_ACCESS_TOKEN: $(System.AccessToken)
-    inputs:
-      azureSubscription: ${{ parameters.service_connection }}
-      scriptType: bash
-      scriptLocation: inlineScript
-      addSpnToEnvironment: true
-      inlineScript: |
-        set -e
-        az account show
+  - checkout: networking_aquarius_official
+    path: util-script-download
+    fetchDepth: 1
+    fetchTags: false
+    condition: and(succeeded(), eq(variables.ACN_UTILS, ''))
 
-        echo "##[group]Repo Directory"
-        ls -la
-        echo "##[endgroup]"
-        mkdir -p $(dirname "$DESTINATION_PATH")
-        cp "$SOURCE_PATH" "$DESTINATION_PATH"
-        chmod +x "$DESTINATION_PATH"
-        echo "##vso[task.setvariable variable=ACN_UTILS]$DESTINATION_PATH"
-        echo "##[group]File Contents"
-        cat "$DESTINATION_PATH"
-        echo "##[endgroup]"
+  - bash: |
+      set -e
+
+      echo "##[group]Repo Directory"
+      ls -la
+      echo "##[endgroup]"
+
+      mkdir -p $(dirname "$DESTINATION_PATH")
+      cp "$SOURCE_PATH" "$DESTINATION_PATH"
+      chmod +x "$DESTINATION_PATH"
+      echo "##vso[task.setvariable variable=ACN_UTILS]$DESTINATION_PATH"
+      
+      echo "##[group]File Contents"
+      cat "$DESTINATION_PATH"
+      echo "##[endgroup]"
+    displayName: Get Utility Script
+    condition: and(succeeded(), eq(variables.ACN_UTILS, ''))
+    env:
+      SOURCE_PATH: util-script-download/.pipelines/scripts/build-utils.sh
+      DESTINATION_PATH: /home/vsts/.local/bin/build-utils.sh

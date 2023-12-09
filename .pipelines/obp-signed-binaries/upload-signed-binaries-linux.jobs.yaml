@@ -1,3 +1,20 @@
+#####################################################################################################################
+# Upload Signed Linux Binaries (Jobs) Template
+#####################################################################################################################
+# Signed Linux binaries are first downloaded from the source, and propagated to storage.
+#
+# Matrix Schema:
+#   [target-archive-identifier] - An identifying value for the package to upload. Cannot be duplicated.
+#     urls - A newline separated list of target urls to download the package from.
+#            Newline separation is used because matrix does not support more complex objects.
+#     name - Friendly name to call the package. Used only for display.
+#
+# Parameters:
+#   storage_service_connection (string) - The AzureRM service connection corresponding to the select storage account.
+#   storage_account            (string) - The storage account to upload the binary to.
+#   storage_container          (string) - The container to upload the blob to.
+#   storage_path               (string) - The path to append to the blob name. Batch uploads are used.
+#####################################################################################################################
 parameters:
 - name: storage_service_connection
   type: string
@@ -9,7 +26,6 @@ parameters:
   type: string
 
 jobs:
-# The $(Build.ArtifactStagingDirectory) and $(Common.TestResultsDirectory) are always deleted and recreated prior to every build.
 - job: 
   displayName: Upload - ${{ parameters.storage_account }}/${{ parameters.storage_container }}
   workspace:
@@ -34,17 +50,15 @@ jobs:
           https://github.com/Azure/azure-container-networking/releases/download/$(VERSION)/azure-vnet-cni-overlay-linux-amd64-$(VERSION).tgz
         name: Azure CNI Overlay Single Tenancy - Linux
   steps:
-  - checkout: self
-    fetchDepth: 1
-    clean: true
+  - checkout: none
 
   - template: ./get-utility-scripts.steps.yaml
     parameters:
       service_connection: ${{ parameters.storage_service_connection }}
 
   - bash: | 
-      set -e
       . "$ACN_UTILS"
+      set -e
 
       for jlink in $(printf "$URLS"); do
         aquarius::tools::say group "Downloading $(basename $jlink)"

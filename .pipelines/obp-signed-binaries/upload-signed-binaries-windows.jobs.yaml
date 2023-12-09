@@ -1,3 +1,21 @@
+#####################################################################################################################
+# Upload Signed Windows Binaries (Jobs) Template
+#####################################################################################################################
+# Signed Windows binaries are first downloaded from the the artifacts of the dependent pipeline and propagated to storage.
+#
+# Matrix Schema:
+#   [target-archive-identifier] - An identifying value for the package to upload. Cannot be duplicated.
+#     artifact     - The artifact from the dependent pipeline (Networking-Aquarius-Official) corresponding to the target package to publish.
+#     file_pattern - A filter for any unneccesary files that might also be included in the artifact. 
+#                    Equal to 'patterns' in [artifact download task](https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/steps-download?view=azure-pipelines).
+#     name - Friendly name to call the package. Used only for display.
+#
+# Parameters:
+#   storage_service_connection (string) - The AzureRM service connection corresponding to the select storage account.
+#   storage_account            (string) - The storage account to upload the binary to.
+#   storage_container          (string) - The container to upload the blob to.
+#   storage_path               (string) - The path to append to the blob name. Batch uploads are used.
+#####################################################################################################################
 parameters:
 - name: storage_service_connection
   type: string
@@ -9,7 +27,6 @@ parameters:
   type: string
 
 jobs:
-# The $(Build.ArtifactStagingDirectory) and $(Common.TestResultsDirectory) are always deleted and recreated prior to every build.
 - job: 
   displayName: Upload .EXE - ${{ parameters.storage_account }}/${{ parameters.storage_container }}
   workspace:
@@ -39,13 +56,7 @@ jobs:
         file_pattern: "@(azure-vnet-cni-overlay-)@(windows)*.zip"
         name: Azure CNI Overlay Single Tenancy
   steps:
-  - checkout: self
-    fetchDepth: 1
-    clean: true
-
-  - template: ./get-utility-scripts.steps.yaml
-    parameters:
-      service_connection: ${{ parameters.storage_service_connection }}
+  - checkout: none
 
   - download: networking_aquarius_official
     artifact: $(artifact)

@@ -1,3 +1,30 @@
+########################################################################################
+# OBP Signed Binaries Pipeline
+########################################################################################
+# Pipeline for uploading presigned binaries to a predefined list of storage accounts. 
+# This pipeline also publishes the corresponding NuGet packages to the ACN NuGet feed.
+#
+# # A list of the creators/maintainers of this pipeline. 
+# # Feel free to add yourself to the list if you make changes.
+# # If you have questions about the pipeline's operation, function, etc. feel free to contact them.
+# # You may also reach out on the appropriate Team's channel.
+# Owners: 
+#   - estabanca
+#   - shtrudo
+#
+# Teams Channel: [Pipelines](https://teams.microsoft.com/l/channel/19%3adb3193bfd6c84f1eba2d5a6981e4e611%40thread.skype/Pipelines?groupId=1eb27b57-8ace-4f0e-a9a9-e6db4e9829b7&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47)
+###############################################################################################################################
+# Stages
+#   - prepare_stage - First stage of the pipeline meant to set up anything that the following stages require before continuing.
+#     outputs:
+#       get_version.version (string) - A string representing the current cni release version that is being published/uploaded.
+#         <scope: dependsOn prepare-stage>
+#
+#   - upload_signed_binaries (template[stages]) 
+#
+#   - publish_nuget_packages (template[stages])
+###############################################################################################################################
+
 trigger:
   - none
 
@@ -11,20 +38,6 @@ resources:
           - master
 
 variables:
-  - name: buildConfiguration
-    value: Release
-  - name: releaseBranchName
-    value: master
-#  - name: STORAGE_ACCOUNT
-#    value: infrae2esaue3orv
-#  - name: STORAGE_CONTAINER
-#    value: obp-signed-binaries
-#  - name: STORAGE_SERVICE_CONNECTION
-#    value: "Azure Network Agent - Test (2)"
-  - name: SOURCE_REPO
-    value: $[resources.repositories.self.url]
-  - name: SOURCE_REF
-    value: $[resources.repositories.self.version]
   - template: ./obp-signed-binaries/environment-matrix.params.yaml
 
 stages:
@@ -35,37 +48,25 @@ stages:
     displayName: Prepare
     steps:
       - checkout: none
+      - template: ./obp-signed-binaries/get-utility-scripts.steps.yaml
 
       - download: networking_aquarius_official
         artifact: drop_download_github
         patterns: "@(azure-vnet)"
 
       - bash: |
+          set -e
+          . $ACN_UTILS
           VNET_BIN=$(find $(Pipeline.Workspace) -type f -maxdepth 4 -name 'azure-vnet')
           echo "Found Binary: $VNET_BIN"
           chmod +x "$VNET_BIN"
           VERSION=$("$VNET_BIN" --version | awk '{ print $4 }')
 
-          echo "##vso[task.setvariable variable=version;isOutput=true;]${VERSION}"
-          echo "Setting version: $VERSION"
+          aquarius::tools::var version output "${VERSION}"
         name: get_version
         displayName: Get Release Version
 
-# Can use the above method or this method which uses the filename to get the version.        
-#      - bash: |
-#          FILENAME=$(find $(Pipeline.Workspace) -maxdepth 4 -name "azure-vnet*.zip" | head -n 1)
-#          echo "Found file: $FILENAME"
-#          echo "##vso[task.setvariable variable=filename]$FILENAME"
-#        displayName: Verify Version-File Name
-#
-#      - template: ./obp-signed-binaries/get-version-from-filename.steps.yaml
-#        parameters:
-#          filename: $(filename)
-
-- ${{ each env in variables.ENVIRONMENT_MATRIX }}:
-  - template: ./opb-signed-binaries/upload-signed-binaries.jobs.yaml
-    parameters:
-      environment: ${{ env }}
+- template: ./obp-signed-binaries/upload-signed-binaries.stages.yaml
 
 #- stage: publish_nuget_stage
 #  displayName: Publish Nuget Packages

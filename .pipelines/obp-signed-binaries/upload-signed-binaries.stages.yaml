@@ -1,43 +1,54 @@
-parameters:
-  - name: deployment_config
-    type: object
-    default:
-    - environmentName: Public
-      storage:
-        # acnreleaseartifacts
-        # Plus service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
-      - accountName: infrae2esaue3orv
-        containerName: azure-cni-acnreleaseartifacts
-        blobPrefix: $(VERSION)/binaries
-        serviceConnection: "Azure Network Agent - Test (2)"
-        # k8sreleases
-        # Plus service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
-      - accountName: infrae2esaue3orv
-        containerName: azure-cni-k8sreleases
-        blobPrefix: $(VERSION)/binaries
-        serviceConnection: "Azure Network Agent - Test (2)"
-    - environmentName: Mooncake
-      storage:
-        # k8sartifacts
-        # plus a mooncake subscription service connection
-      - accountName: infrae2esaue3orv
-        containerName: azure-cni
-        blobPrefix: $(VERSION)/binaries
-        serviceConnection: "Azure Network Agent - Test (2)"
-    - environmentName: Airgap
-      storage:
-        # accountName aksteleportussec
-        # plus ussec service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
-      - accountName: infrae2esaue3orv
-        containerName: aksteleportussec
-        blobPrefix: upstream/azure-cni
-        serviceConnection: "Azure Network Agent - Test (2)"
-        # accountName aksteleportusnat
-        # plus usnat service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
-      - accountName: infrae2esaue3orv
-        containerName: aksteleportusnat
-        blobPrefix: upstream/azure-cni
-        serviceConnection: "Azure Network Agent - Test (2)"
+#######################################################################################################################
+# Upload Signed Binaries (Stages) Template
+#######################################################################################################################
+# A template used for generating a stage for uploading binaries for each environment defined in the environment matrix.
+#
+# Depends On:
+#   prepare_stage - Each stage is dependent on the version number generated in the prepare step.
+#######################################################################################################################
+#
+#parameters:
+#  - name: deployment_config
+#    type: object
+#    default:
+#    - environmentName: Public
+#      storage:
+#        # acnreleaseartifacts
+#        # Plus service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+#      - accountName: infrae2esaue3orv
+#        containerName: azure-cni-acnreleaseartifacts
+#        blobPrefix: $(VERSION)/binaries
+#        serviceConnection: "Azure Network Agent - Test (2)"
+#        # k8sreleases
+#        # Plus service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+#      - accountName: infrae2esaue3orv
+#        containerName: azure-cni-k8sreleases
+#        blobPrefix: $(VERSION)/binaries
+#        serviceConnection: "Azure Network Agent - Test (2)"
+#    - environmentName: Mooncake
+#      storage:
+#        # k8sartifacts
+#        # plus a mooncake subscription service connection
+#      - accountName: infrae2esaue3orv
+#        containerName: azure-cni
+#        blobPrefix: $(VERSION)/binaries
+#        serviceConnection: "Azure Network Agent - Test (2)"
+#    - environmentName: Airgap
+#      storage:
+#        # accountName aksteleportussec
+#        # plus ussec service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+#      - accountName: infrae2esaue3orv
+#        containerName: aksteleportussec
+#        blobPrefix: upstream/azure-cni
+#        serviceConnection: "Azure Network Agent - Test (2)"
+#        # accountName aksteleportusnat
+#        # plus usnat service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
+#      - accountName: infrae2esaue3orv
+#        containerName: aksteleportusnat
+#        blobPrefix: upstream/azure-cni
+#        serviceConnection: "Azure Network Agent - Test (2)"
+#variables:
+  #  - template: ./obp-signed-binaries/environment-matrix.params.yaml
 
 stages:
 - ${{ each env in parameters.deployment_config }}:

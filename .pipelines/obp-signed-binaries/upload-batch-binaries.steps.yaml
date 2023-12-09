@@ -1,3 +1,18 @@
+#####################################################################################################################
+# Batch Upload Binaries (Steps) Template
+#####################################################################################################################
+# Template for processing a local folder for upload to a storage account.
+#
+# Parameters:
+#   source_path                (string) - The local location (full path recommended) of the path to upload.
+#   blob_prefix                (string) - The name/filepath to append to the blob name on upload.
+#   addtl_opts                 (string) - (default: '') Any additional options to pass to the batch upload command.
+#                                         See `az storage blob upload-batch --help` for a complete list.
+#   storage_service_connection (string) - The AzureRM service connection corresponding to the select storage account.
+#   storage_account            (string) - The storage account to upload the binary to.
+#   storage_container          (string) - The container to upload the blob to.
+#   storage_path               (string) - The path to append to the blob name. Batch uploads are used.
+#####################################################################################################################
 parameters:
 - name: source_path
   type: string
@@ -15,6 +30,8 @@ parameters:
   type: string
 
 steps:
+  - template: ./get-utility-scripts.steps.yaml
+
   - task: AzureCLI@2
     displayName: Upload Binaries
     env:
@@ -33,9 +50,10 @@ steps:
         . "$ACN_UTILS"
 
         aquarius::tools::say group "Verify Container ($CONTAINER_NAME) Existence"
-        aquarius::tools::retry 3 az storage container create --name "$CONTAINER_NAME" --account-name "$STORAGE_ACCOUNT"
+          aquarius::tools::retry 3 az storage container create --name "$CONTAINER_NAME" --account-name "$STORAGE_ACCOUNT"
         aquarius::tools::say endgroup
+
         aquarius::tools::say group "Upload Blobs to \'$CONTAINER_NAME/$BLOB_PREFIX\'"
-        aquarius::tools::retry 3 az storage blob upload-batch --destination "$CONTAINER_NAME" \
-          --destination-path "$BLOB_PREFIX" --source "$SOURCE_PATH" --account-name "$STORAGE_ACCOUNT" $ADDTL_OPTS
+          aquarius::tools::retry 3 az storage blob upload-batch --destination "$CONTAINER_NAME" \
+            --destination-path "$BLOB_PREFIX" --source "$SOURCE_PATH" --account-name "$STORAGE_ACCOUNT" $ADDTL_OPTS
         aquarius::tools::say endgroup
