@@ -30,8 +30,6 @@ jobs:
   displayName: Upload - ${{ parameters.storage_account }}/${{ parameters.storage_container }}
   workspace:
     clean: all
-#  variables:
-#    VERSION: $[ dependencies.prepare.outputs['get_version.version'] ]
   strategy:
     matrix:
       azure_cni_singletenancy:

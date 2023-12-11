@@ -25,6 +25,8 @@
 #   - publish_nuget_packages (template[stages])
 ###############################################################################################################################
 
+# TODO: Comment out this trigger when you want to make auto triggers from master
+#       on the pipeline. If you use this as a separate pipeline.
 trigger:
   - none
 
@@ -37,18 +39,23 @@ resources:
         include:
           - master
   repositories:
-  # Change to an official service connection
+  # TODO: Change to an official service connection for integration with other pipelines.
   - repository: acn_master
-    type: github
-    #endpoint: "Azure Container Networking - readonly"
     endpoint: "sheylatrudo"
-    #name: Azure/azure-container-networking
+    type: github
     name: sheylatrudo/azure-container-networking
-    #ref: refs/heads/master
     ref: smtrudo/obp-signed-binaries-pipeline
+  #- repository: acn_master
+  #  endpoint: "Azure Container Networking - readonly"
+  #  type: github
+  #  name: Azure/azure-container-networking
+  #  ref: refs/heads/master
+  #  # Add trigger none when the above trigger none is removed.
+  #  trigger: none
 
 stages:
-  # TODO: May want to add a ManualValidation task to prepare_stage for manual queues.
+  # TODO: May want to add a ManualValidation task to prepare_stage for manual queues. Or not.
+  #       Depends on if we consider a manual queue a mistake or not.
   # e.g.
   # - job: waitForValidation
   #  displayName: Wait for external validation  
@@ -63,10 +70,10 @@ stages:
   #         instructions: 'Please validate the manual queue.'
   #         onTimeout: 'reject'
 - stage: prepare_stage
-  displayName: Upload Nuget and Signed Binaries
+  displayName: Initialize
   jobs:
   - job: prepare_version
-    displayName: Prepare
+    displayName: Prepare Version Info
     steps:
       # If the utility script is not used, checkout should be none.
       # The acn_master resource should also be removed.
@@ -86,16 +93,9 @@ stages:
           VERSION=$("$VNET_BIN" --version | awk '{ print $4 }')
 
           aquarius::tools::var version output "${VERSION}"
-          echo "made it here"
         name: get_version
         displayName: Get Release Version
 
 - template: ./obp-signed-binaries/upload-signed-binaries.stages.yaml
 
-#- stage: publish_nuget_stage
-#  displayName: Publish Nuget Packages
-#  dependsOn: prepare_stage
-#  variables:
-#    VERSION: $[
-#  jobs:
-#  - template: ./opb-signed-binaries/publish-nuget-packages.jobs.yaml
+- template: ./obp-signed-binaries/publish-nuget-packages.stages.yaml

@@ -1,14 +1,11 @@
 #!/bin/bash
-na_utils_loc="/home/vsts"
-na_utils_pipe_file="${na_utils_loc}/na-utils-pipe"
-na_utils_output_file="${na_utils_loc}/na-utils-output"
 
 aquarius::internal::qpushd()  {
-    command pushd "$@" >&$na_utils_pipe_file
+    command pushd "$@" >/dev/null
 }
 
 aquarius::internal::qpopd()  {
-    command popd "$@" >&$na_utils_pipe_file
+    command popd "$@" >/dev/null
 }
 
 aquarius::internal::unset_errexit()  {
@@ -63,7 +60,7 @@ aquarius::internal::err_trap_handler()  {
 aquarius::internal::print_subprocess()  {
   local cmd="${@}"
 
-  eval "${cmd}" >&$na_utils_pipe_file
+  eval "${cmd}" >&2
   return "$?"
 }
 
@@ -98,7 +95,7 @@ aquarius::tools::say()  {
   aquarius::internal::unset_xtrace
 
   what="$@"
-  echo "##[$say_type]$what" >&$na_utils_pipe_file
+  echo "##[$say_type]$what" >&2
 }
 
 aquarius::tools::act()  {
@@ -106,7 +103,7 @@ aquarius::tools::act()  {
   local exit
 
   aquarius::internal::set_errexit
-  cmd=$(aquarius::internal::required_arg "cmd" "${@}")
+  cmd="${@}"
   aquarius::internal::unset_errexit
 
   aquarius::tools::say command "${cmd}"
@@ -116,7 +113,6 @@ aquarius::tools::act()  {
 }
 
 aquarius::tools::var()  {
-echo "calling aquarius::tools::var"
   local length
   local varname
   local optone
@@ -158,14 +154,14 @@ echo "calling aquarius::tools::var"
   local esc="#"
   local vesc="vso"
   aquarius::tools::say debug "[${setopts}]=${var}"
-  echo "#${esc}${vesc}[task.setvariable ${setopts}]${var}"
+  echo "#${esc}${vesc}[task.setvariable ${setopts}]${var}" >&2
   return 0
 }
 
 aquarius::tools::add_to_path()  {
   local target
   aquarius::internal::set_errexit
-  target=$(aquarius::internal::required_arg "path_target" "${@}")
+  target="${@}"
   # Escaping build weirdness when it tries to see this as a directive
   # when written out.
   if [ -d "$target" ] && [[ ! $PATH =~ (^|:)$target(:|$) ]]; then
@@ -176,7 +172,7 @@ aquarius::tools::add_to_path()  {
     # Prepended path does not take effect until subsequent tasks.
     # Adding here for immediate effect in same task.
     PATH+=:$1
-    echo "#${esc}${vesc}[task.prependpath]${target}" >&$na_utils_pipe_file
+    echo "#${esc}${vesc}[task.prependpath]${target}" >&2
   fi
   return 0
 }
@@ -187,7 +183,7 @@ aquarius::tools::fail()  {
 
   local esc="#"
   local vesc="vso"
-  echo "#${esc}${vesc}[task.complete result=Failed]${message}" >&$na_utils_pipe_file
+  echo "#${esc}${vesc}[task.complete result=Failed]${message}" >&2
   return 1
 }
 
@@ -199,7 +195,7 @@ aquarius::tools::retry()  {
   aquarius::internal::set_errexit
   retries="${1}"
   shift
-  cmd=$(aquarius::internal::required_arg "cmd" "${@}")
+  cmd="${@}"
   aquarius::internal::unset_errexit
 
   local exit
@@ -280,13 +276,8 @@ aquarius::tools::build_requested_for_alias()  {
 }
 
 aquarius::internal::init()  {
-  aquarius::internal::unset_errexit
-  mkdir -p "$na_utils_loc"
-
-  [ ! -e "$na_utils_pipe_file" ] && mkfifo "$na_utils_pipe_file"
-  [ ! -e "$na_utils_output_file" ] && touch "$na_utils_output_file"
-  tee "$na_utils_output_file" < "$na_utils_pipe_file" &
-  #exec $na_utils_pipe_file>&2
+  #exec 3<> 3>&2
+  echo "Loaded" >&2
 }
 
 if [[ "$_" != "$0" ]]; then

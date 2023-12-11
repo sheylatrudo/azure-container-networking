@@ -31,12 +31,6 @@ jobs:
   displayName: Upload .EXE - ${{ parameters.storage_account }}/${{ parameters.storage_container }}
   workspace:
     clean: all
-  dependsOn: prepare
-#  variables:
-#    VERSION: $[ dependencies.prepare.outputs['get_version.version'] ]
-  uses:
-    repositories:
-      - self
   strategy:
     matrix:
       azure_cni_singletenancy:
@@ -56,8 +50,6 @@ jobs:
         file_pattern: "@(azure-vnet-cni-overlay-)@(windows)*.zip"
         name: Azure CNI Overlay Single Tenancy
   steps:
-  - checkout: none
-
   - download: networking_aquarius_official
     artifact: $(artifact)
     patterns: $(file_pattern)

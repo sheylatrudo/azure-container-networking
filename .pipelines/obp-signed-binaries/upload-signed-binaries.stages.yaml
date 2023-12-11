@@ -5,53 +5,77 @@
 #
 # Depends On:
 #   prepare_stage - Each stage is dependent on the version number generated in the prepare step.
-#######################################################################################################################
 #
-#parameters:
-#  - name: deployment_config
-#    type: object
-#    default:
-#    - environmentName: Public
-#      storage:
-#        # acnreleaseartifacts
-#        # Plus service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
-#      - accountName: infrae2esaue3orv
-#        containerName: azure-cni-acnreleaseartifacts
-#        blobPrefix: $(VERSION)/binaries
-#        serviceConnection: "Azure Network Agent - Test (2)"
-#        # k8sreleases
-#        # Plus service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
-#      - accountName: infrae2esaue3orv
-#        containerName: azure-cni-k8sreleases
-#        blobPrefix: $(VERSION)/binaries
-#        serviceConnection: "Azure Network Agent - Test (2)"
-#    - environmentName: Mooncake
-#      storage:
-#        # k8sartifacts
-#        # plus a mooncake subscription service connection
-#      - accountName: infrae2esaue3orv
+# Schema:
+# deployment_config (list[environments]) - A configuration of storage account targets to upload acn binaries.
+#                                          Uses the azure devops 'parameter' type in order to enforce a typed schema that can be used in templating.
+#   'environment' schema:
+#     environmentName (string)              - The name of the environment. Primarily for display purposes, but caution against duplicating.
+#     storage         (list[storageDetail]) - A list of storage targets for the selected environment.
+#   'storageDetail' schema:
+#     accountName       (string) - The name of the targeted upload storage account.
+#     containerName     (string) - The target upload container.
+#     blobPrefix        (string) - The name/filepath to append to the blob name on upload.
+#     serviceConnection (string) - The name of the service connection that can access the target storage account. 
+#                                  Should be of type AzureRM for the subscription in which the storage account resides.
+###################################################################################################################################################
+parameters:
+  - name: deployment_config
+    type: object
+    default:
+    - environmentName: Public
+      storage:
+        # Uncomment the following lines when the pipeline is running "for real".
+        # Remove the lines referring to account 'infrae2esaue2eorv' - this is a test account.
+#      - accountName: k8sreleases
 #        containerName: azure-cni
 #        blobPrefix: $(VERSION)/binaries
-#        serviceConnection: "Azure Network Agent - Test (2)"
-#    - environmentName: Airgap
-#      storage:
-#        # accountName aksteleportussec
-#        # plus ussec service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
-#      - accountName: infrae2esaue3orv
+#        serviceConnection: "Azure Container Networking - Prod Subscription Release Uploader Aug2023"
+#      - accountName: acnreleaseartifacts
+#        containerName: azure-cni
+#        blobPrefix: $(VERSION)/binaries
+#        serviceConnection: "Azure Container Networking - Prod Subscription Release Uploader Aug2023"
+      - accountName: infrae2esaue3orv
+        containerName: azure-cni-acnreleaseartifacts
+        blobPrefix: $(VERSION)/binaries
+        serviceConnection: "Azure Network Agent - Test (2)"
+      - accountName: infrae2esaue3orv
+        containerName: azure-cni-k8sreleases
+        blobPrefix: $(VERSION)/binaries
+        serviceConnection: "Azure Network Agent - Test (2)"
+    - environmentName: Mooncake
+      storage:
+        # Uncomment the following lines when the pipeline is running "for real".
+        # Be sure to get someone with access to Mooncake subscription to create the Service Connection.
+        # Remove the lines referring to account 'infrae2esaue2eorv' - this is a test account.
+#      - accountName: k8sartifacts
+#        containerName: azure-cni
+#        blobPrefix: $(VERSION)/binaries
+#        serviceConnection: # Insert Service Connection for Mooncake
+      - accountName: infrae2esaue3orv
+        containerName: azure-cni
+        blobPrefix: $(VERSION)/binaries
+        serviceConnection: "Azure Network Agent - Test (2)"
+    - environmentName: Airgap
+      storage:
+        # Uncomment the following lines when the pipeline is running "for real".
+        # Remove the lines referring to account 'infrae2esaue2eorv' - this is a test account.
+#      - accountName: aksteleportussec
 #        containerName: aksteleportussec
-#        blobPrefix: upstream/azure-cni
-#        serviceConnection: "Azure Network Agent - Test (2)"
-#        # accountName aksteleportusnat
-#        # plus usnat service connection: Azure Container Networking - Prod Subscription Release Uploader Aug2023
-#      - accountName: infrae2esaue3orv
+#        blobPrefix: upstream/azure-cni/$(VERSION)/binaries
+#        serviceConnection: "Azure Container Networking - Prod Subscription Release Uploader Aug2023"
+#      - accountName: aksteleportusnat
 #        containerName: aksteleportusnat
-#        blobPrefix: upstream/azure-cni
-#        serviceConnection: "Azure Network Agent - Test (2)"
-#variables:
-  #  - template: ./obp-signed-binaries/environment-matrix.params.yaml
-
-extends:
-  template: ./environment-matrix.params.yaml
+#        blobPrefix: upstream/azure-cni/$(VERSION)/binaries
+#        serviceConnection: "Azure Container Networking - Prod Subscription Release Uploader Aug2023"
+      - accountName: infrae2esaue3orv
+        containerName: aksteleportussec
+        blobPrefix: upstream/azure-cni
+        serviceConnection: "Azure Network Agent - Test (2)"
+      - accountName: infrae2esaue3orv
+        containerName: aksteleportusnat
+        blobPrefix: upstream/azure-cni
+        serviceConnection: "Azure Network Agent - Test (2)"
 
 stages:
 - ${{ each env in parameters.deployment_config }}:
