@@ -1,0 +1,12 @@
+ {
+   "codebaseName"       :  "Azure_azure-container-networking",
+   "instanceUrl"        :  "https://msazure.visualstudio.com/defaultcollection",
+   "projectName"        :  "One",
+   "areaPath"           :  "One\\Networking\\ContainerNetworking\\CICD Infrastructure",
+   "notificationAliases":  [
+                             "acn-ci@service.microsoft.com",
+                             "shtrudo@microsoft.com"
+                           ],
+   "ppe"                :  "false",
+   "template"           :  "TFSMSAzure"
+ }
