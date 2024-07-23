@@ -39,11 +39,11 @@ variables:
   NUGET_PLUGIN_IDLE_TIMEOUT_IN_SECONDS: 1200
   mingwurl: 'https://github.com/niXman/mingw-builds-binaries/releases/download/12.1.0-rt_v10-rev3/x86_64-12.1.0-release-posix-seh-rt_v10-rev3.7z'
   ESRP_XSIGN_MAX_PARALLELIZATION: 100
-  Codeql.ADO.Build.Repository.Provider: GitHub
-  Codeql.ADO.Build.SourceVersion: $[ resources.repositories['self'].version ]
-  Codeql.ADO.Build.Repository.Uri: $[ resources.repositories['self'].url ]
-  Codeql.ADO.Build.SourceBranch: $[ resources.repositories['self'].ref ]
-  Codeql.ADO.Build.SourceBranchName: $[ replace(resources.repositories['self'].ref, 'refs/heads/', '') ]
+#  Codeql.ADO.Build.Repository.Provider: GitHub
+#  Codeql.ADO.Build.SourceVersion: $[ resources.repositories['self'].version ]
+#  Codeql.ADO.Build.Repository.Uri: $[ resources.repositories['self'].url ]
+#  Codeql.ADO.Build.SourceBranch: $[ resources.repositories['self'].ref ]
+#  Codeql.ADO.Build.SourceBranchName: $[ replace(resources.repositories['self'].ref, 'refs/heads/', '') ]
 
 
 extends:
@@ -55,7 +55,6 @@ extends:
       codeql: # https://eng.ms/docs/cloud-ai-platform/devdiv/one-engineering-system-1es/1es-docs/codeql/one-branch-codeql
         compiled:
           enabled: true
-
       cg:
         failOnAlert: false
       tsa:
@@ -72,8 +71,6 @@ extends:
       jobs:
         - job: env
           displayName: Setup
-          pool:
-            name: "$(BUILD_POOL_NAME_DEFAULT)"
           steps:
             - script: |
                 # To use the variables below, you must make the respective stage's dependsOn have - setup or it will not retain context of this stage

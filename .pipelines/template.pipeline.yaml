@@ -8,8 +8,6 @@ stages:
       displayName: Run Tests
       variables:
         STORAGE_ID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.StorageID'] ]
-      pool:
-        name: "$(BUILD_POOL_NAME_DEFAULT)"
       steps:
         - script: |
             make tools
@@ -34,8 +32,6 @@ stages:
       displayName: Run Tests
       variables:
         STORAGE_ID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.StorageID'] ]
-      pool:
-        name: "$(BUILD_POOL_NAME_DEFAULT_WINDOWS_ALT)"
       steps:
         - script: |
             cd npm/
@@ -54,8 +50,6 @@ stages:
       displayName: Build Binaries
       variables:
         STORAGE_ID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.StorageID'] ]
-      pool:
-        name: "$(BUILD_POOL_NAME_DEFAULT)"
       steps:
         - script: |
             make ipv6-hp-bpf-lib
@@ -93,8 +87,6 @@ stages:
   jobs:
     - job: containerize_amd64
       displayName: Build Images
-      pool:
-        name: "$(BUILD_POOL_NAME_LINUX_AMD64)"
       strategy:
         matrix:
           azure_ipam_linux_amd64:
@@ -175,8 +167,6 @@ stages:
             os_version: $(os_version)
     - job: containerize_linux_arm64
       displayName: Build Images
-      pool:
-        name: "$(BUILD_POOL_NAME_LINUX_ARM64)"
       strategy:
         matrix:
           azure_ipam_linux_arm64:
@@ -219,8 +209,6 @@ stages:
   jobs:
     - job: manifest
       displayName: Compile Manifests
-      pool:
-        name: "$(BUILD_POOL_NAME_DEFAULT)"
       strategy:
         matrix:
           azure_ipam:
@@ -265,7 +253,7 @@ stages:
     dependsOn: "containerize"
 
 # Cilium Overlay E2E tests
-- template: singletenancy/cilium-overlay/cilium-overlay-e2e-job-template.yaml
+- template: singletenancy/cilium-overlay/cilium-overlay-e2e.stages.yaml
   parameters:
     name: "cilium_overlay_e2e"
     displayName: Cilium on AKS Overlay
@@ -276,7 +264,7 @@ stages:
     dependsOn: "containerize"
 
 # Cilium Dualstack Overlay E2E tests
-- template: singletenancy/cilium-dualstack-overlay/cilium-dualstackoverlay-e2e-job-template.yaml
+- template: singletenancy/cilium-dualstack-overlay/cilium-dualstackoverlay-e2e.stages.yaml
   parameters:
     name: "cilium_dualstackoverlay_e2e"
     displayName: Cilium on AKS DualStack Overlay
@@ -288,7 +276,7 @@ stages:
     dependsOn: "containerize"
 
     # Cilium Overlay with hubble E2E tests
-- template: singletenancy/cilium-overlay-withhubble/cilium-overlay-e2e-job-template.yaml
+- template: singletenancy/cilium-overlay-withhubble/cilium-overlay-e2e.stages.yaml
   parameters:
     name: "cilium_h_overlay_e2e"
     displayName: Cilium on AKS Overlay with Hubble
@@ -300,7 +288,7 @@ stages:
     testHubble: true
 
 # Azure Overlay E2E tests
-- template: singletenancy/azure-cni-overlay/azure-cni-overlay-e2e-job-template.yaml
+- template: singletenancy/azure-cni-overlay/azure-cni-overlay-e2e.stages.yaml
   parameters:
     name: "azure_overlay_e2e"
     displayName: Azure Overlay
@@ -312,7 +300,7 @@ stages:
     dependsOn: "containerize"
 
 # AKS Swift E2E tests
-- template: singletenancy/aks-swift/e2e-job-template.yaml
+- template: singletenancy/aks-swift/swift-e2e.stages.yaml
   parameters:
     name: "aks_swift_e2e"
     displayName: AKS Swift Ubuntu
@@ -324,7 +312,7 @@ stages:
     dependsOn: "containerize"
 
 # AKS Swift Vnet Scale E2E tests
-- template: singletenancy/aks-swift/e2e-job-template.yaml
+- template: singletenancy/aks-swift/swift-e2e.stages.yaml
   parameters:
     name: "aks_swift_vnetscale_e2e"
     displayName: AKS Swift Vnet Scale Ubuntu
@@ -336,7 +324,7 @@ stages:
     dependsOn: "containerize"
 
 # CNIv1 E2E tests
-- template: singletenancy/aks/e2e-job-template.yaml
+- template: singletenancy/aks/aks-e2e.stages.yaml
   parameters:
     name: "aks_ubuntu_22_linux_e2e"
     displayName: AKS Ubuntu 22
@@ -349,7 +337,7 @@ stages:
     scaleup: 100
     dependsOn: "containerize"
 
-- template: singletenancy/aks/e2e-job-template.yaml
+- template: singletenancy/aks/aks-e2e.stages.yaml
   parameters:
     name: "aks_windows_22_e2e"
     displayName: AKS Windows 2022
@@ -363,7 +351,7 @@ stages:
     dependsOn: "containerize"
 
 # CNI dual stack overlay E2E tests
-- template: singletenancy/dualstack-overlay/dualstackoverlay-e2e-job-template.yaml
+- template: singletenancy/dualstack-overlay/dualstackoverlay-e2e.stages.yaml
   parameters:
     name: "dualstackoverlay_e2e"
     displayName: AKS DualStack Overlay
@@ -374,7 +362,7 @@ stages:
     dependsOn: "containerize"
 
 # Swiftv2 E2E tests with multitenancy cluster start up
-- template: multitenancy/swiftv2-e2e-job-template.yaml
+- template: multitenancy/swiftv2-e2e.stages.yaml
   parameters:
     name: "swiftv2_e2e"
     displayName: Swiftv2 Multitenancy
@@ -409,8 +397,6 @@ stages:
   jobs:
     - job: delete
       displayName: Delete Cluster
-      pool:
-        name: "$(BUILD_POOL_NAME_DEFAULT)"
       strategy:
         matrix:
           cilium_e2e:
