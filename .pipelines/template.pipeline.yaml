@@ -81,16 +81,14 @@ stages:
 
         - task: CopyFiles@2
           inputs:
-            sourceFolder: "output"
+            sourceFolder: drop_binaries_build
             targetFolder: $(Build.ArtifactStagingDirectory)
-          condition: succeeded()
 
         - task: PublishPipelineArtifact@1
           inputs:
-            artifactName: "output"
-            targetPath: "$(Build.ArtifactStagingDirectory)"
+            artifactName: drop_binaries_build # updated from 'output'
+            targetPath: $(Build.ArtifactStagingDirectory)
             publishLocation: pipeline
-          condition: succeeded()
 
 #- stage: containerize
 #  displayName: Build Images
