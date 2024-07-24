@@ -46,9 +46,13 @@ stages:
     jobs:
       - job: ${{ parameters.name }}
         displayName: Singletenancy AKS - (${{ parameters.name }})
-        pool:
+        pool: 
           type: linux
-          hostArchitecture: amd64
+          isCustom: true
+          name: $(BUILD_POOL_NAME_DEFAULT)
+          demands:
+          - agent.os -equals Linux
+          - Role -equals $(CUSTOM_E2E_ROLE)
         steps:
           - template: e2e-step-template.yaml
             parameters:

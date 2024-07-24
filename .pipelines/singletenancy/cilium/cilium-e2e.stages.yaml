@@ -46,9 +46,13 @@ stages:
       - job: ${{ parameters.name }}
         displayName: Cilium Test Suite - (${{ parameters.name }})
         timeoutInMinutes: 120
-        pool:
+        pool: 
           type: linux
-          hostArchitecture: amd64
+          isCustom: true
+          name: $(BUILD_POOL_NAME_DEFAULT)
+          demands:
+          - agent.os -equals Linux
+          - Role -equals $(CUSTOM_E2E_ROLE)
         steps:
           - template: cilium-e2e-step-template.yaml
             parameters:

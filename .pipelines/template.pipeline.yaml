@@ -3,6 +3,10 @@ stages:
   displayName: Test ACN
   dependsOn:
     - setup
+  pool:
+    type: windows
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
   jobs:
     - job: test
       displayName: Run Tests
@@ -29,7 +33,8 @@ stages:
     - setup
   pool: 
     type: windows
-    hostArchitecture: amd64
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
   jobs:
     - job: test
       displayName: Run Tests
@@ -48,6 +53,10 @@ stages:
   dependsOn:
     - setup
     - test
+  pool: 
+    type: windows
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
   jobs:
     - job: build
       displayName: Build Binaries
@@ -87,6 +96,10 @@ stages:
   dependsOn:
     - setup
     - test
+  pool: 
+    type: windows
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
   jobs:
     - job: containerize_amd64
       displayName: Build Images
@@ -209,6 +222,10 @@ stages:
     - containerize
   variables:
     Packaging.EnableSBOMSigning: false
+  pool: 
+    type: windows
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
   jobs:
     - job: manifest
       displayName: Compile Manifests
@@ -245,7 +262,7 @@ stages:
             platforms: $(platforms)
 
 # Cilium Podsubnet E2E tests
-- template: singletenancy/cilium/cilium-e2e-job-template.stages.yaml
+- template: singletenancy/cilium/cilium-e2e.stages.yaml
   parameters:
     name: "cilium_e2e"
     displayName: Cilium
@@ -397,6 +414,10 @@ stages:
     - swiftv2_e2e
   variables:
     commitID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.commitID'] ]
+  pool: 
+    type: windows
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
   jobs:
     - job: delete
       displayName: Delete Cluster
