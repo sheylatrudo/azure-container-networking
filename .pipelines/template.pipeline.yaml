@@ -259,7 +259,7 @@ stages:
 #        isCustom: true
 #        name: $(BUILD_POOL_NAME_DEFAULT)
 #      steps:
-#        - template: containers/manifest-template.yaml
+#        - template: containers/build-image-manifest.steps.yaml
 #          parameters:
 #            name: $(name)
 #            os_versions: $(os_versions)
