@@ -45,10 +45,11 @@ variables:
 #  Codeql.ADO.Build.SourceBranch: $[ resources.repositories['self'].ref ]
 #  Codeql.ADO.Build.SourceBranchName: $[ replace(resources.repositories['self'].ref, 'refs/heads/', '') ]
 
-pool:
-  type: windows
-  isCustom: true
-  name: $(BUILD_POOL_NAME_DEFAULT)
+#pool:
+#  type: windows
+#  isCustom: true
+#  name: $(BUILD_POOL_NAME_DEFAULT)
+#
 #  type: linux
 #  isCustom: true
 #  name: $(BUILD_POOL_NAME_DEFAULT)
@@ -81,7 +82,7 @@ extends:
       pool:
         type: windows
         isCustom: true
-        name: $$(BUILD_POOL_NAME_DEFAULT)
+        name: $(BUILD_POOL_NAME_DEFAULT)
       jobs:
         - job: env
           displayName: Setup
