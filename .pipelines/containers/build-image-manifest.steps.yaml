@@ -51,5 +51,5 @@ steps:
   # updated from 'output'
   - task: PublishPipelineArtifact@1
     inputs:
-      artifactName: drop_publish_manifest
+      artifact: drop_publish_manifest
       targetPath: "$(Build.ArtifactStagingDirectory)"
