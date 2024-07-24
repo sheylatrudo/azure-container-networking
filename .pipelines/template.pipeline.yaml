@@ -84,10 +84,10 @@ stages:
             sourceFolder: drop_binaries_build
             targetFolder: $(Build.ArtifactStagingDirectory)
 
+        # updated from 'output'
         - task: PublishPipelineArtifact@1
           inputs:
-            # updated from 'output'
-            artifactName: drop_binaries_build 
+            artifact: "drop_binaries_build"
             targetPath: $(Build.ArtifactStagingDirectory)
             publishLocation: pipeline
 
