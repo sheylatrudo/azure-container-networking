@@ -48,7 +48,8 @@ steps:
     inputs:
       BuildDropPath: "$(Build.ArtifactStagingDirectory)"
 
+  # updated from 'output'
   - task: PublishPipelineArtifact@1
     inputs:
-      artifactName: "output"
+      artifactName: drop_publish_manifest
       targetPath: "$(Build.ArtifactStagingDirectory)"
