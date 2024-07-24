@@ -42,6 +42,9 @@ stages:
     jobs:
       - job: ${{ parameters.name }}_linux
         displayName: DualStack Overlay Test Suite | Linux - (${{ parameters.name }})
+        pool:
+          type: linux
+          hostArchitecture: amd64
         steps:
           - template: dualstackoverlay-e2e-step-template.yaml
             parameters:
@@ -52,6 +55,9 @@ stages:
       - job: ${{ parameters.name }}_windows
         displayName: DualStack Overlay Test Suite | Windows - (${{ parameters.name }})
         dependsOn: ${{ parameters.name }}_linux
+        pool:
+          type: linux
+          hostArchitecture: amd64
         steps:
           - template: dualstackoverlay-e2e-step-template.yaml
             parameters:

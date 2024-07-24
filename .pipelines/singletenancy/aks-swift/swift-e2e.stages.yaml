@@ -45,6 +45,9 @@ stages:
       - job: ${{ parameters.name }}
         displayName: Singletenancy AKS Swift Suite - (${{ parameters.name }})
         timeoutInMinutes: 120
+        pool:
+          type: linux
+          hostArchitecture: amd64
         steps:
           - template: e2e-step-template.yaml
             parameters:

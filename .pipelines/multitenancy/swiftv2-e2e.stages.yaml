@@ -45,6 +45,9 @@ stages:
     jobs:
       - job: ${{ parameters.name }}
         displayName: Swiftv2 Multitenancy E2E Test Suite - (${{ parameters.name }})
+        pool:
+          type: linux
+          hostArchitecture: amd64
         steps:
           - template: swiftv2-e2e-step-template.yaml
             parameters:

@@ -27,6 +27,9 @@ stages:
   displayName: Test ACN Windows
   dependsOn:
     - setup
+  pool: 
+    type: windows
+    hostArchitecture: amd64
   jobs:
     - job: test
       displayName: Run Tests
@@ -242,7 +245,7 @@ stages:
             platforms: $(platforms)
 
 # Cilium Podsubnet E2E tests
-- template: singletenancy/cilium/cilium-e2e-job-template.yaml
+- template: singletenancy/cilium/cilium-e2e-job-template.stages.yaml
   parameters:
     name: "cilium_e2e"
     displayName: Cilium

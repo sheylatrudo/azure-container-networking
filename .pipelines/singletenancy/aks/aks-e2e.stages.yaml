@@ -46,6 +46,9 @@ stages:
     jobs:
       - job: ${{ parameters.name }}
         displayName: Singletenancy AKS - (${{ parameters.name }})
+        pool:
+          type: linux
+          hostArchitecture: amd64
         steps:
           - template: e2e-step-template.yaml
             parameters:

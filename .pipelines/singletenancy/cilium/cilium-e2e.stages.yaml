@@ -46,6 +46,9 @@ stages:
       - job: ${{ parameters.name }}
         displayName: Cilium Test Suite - (${{ parameters.name }})
         timeoutInMinutes: 120
+        pool:
+          type: linux
+          hostArchitecture: amd64
         steps:
           - template: cilium-e2e-step-template.yaml
             parameters:
