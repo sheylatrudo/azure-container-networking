@@ -51,6 +51,17 @@ extends:
   parameters:
     featureFlags:
       linuxEsrpSigningPreview: true
+      WindowsHostVersion: 
+        type: windows
+        isCustom: true
+        name: $$(BUILD_POOL_NAME_DEFAULT)
+      LinuxHostVersion:
+        type: linux
+        isCustom: true
+        name: $(BUILD_POOL_NAME_DEFAULT)
+        demands:
+        - agent.os -equals Linux
+        - Role -equals $(CUSTOM_E2E_ROLE)
     globalSdl:
       codeql: # https://eng.ms/docs/cloud-ai-platform/devdiv/one-engineering-system-1es/1es-docs/codeql/one-branch-codeql
         compiled:
