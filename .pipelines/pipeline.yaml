@@ -79,13 +79,13 @@ extends:
     stages:
     - stage: setup
       displayName: ACN
-      pool:
-        type: windows
-        isCustom: true
-        name: $(BUILD_POOL_NAME_DEFAULT)
       jobs:
         - job: env
           displayName: Setup
+          pool:
+            type: windows
+            isCustom: true
+            name: $(BUILD_POOL_NAME_DEFAULT)
           steps:
             - script: |
                 # To use the variables below, you must make the respective stage's dependsOn have - setup or it will not retain context of this stage

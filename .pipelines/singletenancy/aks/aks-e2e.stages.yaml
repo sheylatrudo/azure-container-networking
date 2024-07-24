@@ -20,7 +20,7 @@ stages:
     variables:
       commitID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.commitID'] ]
     jobs:
-      - template: ../../templates/create-cluster.yaml
+      - template: ../../templates/create-cluster.jobs.yaml
         parameters:
           name: ${{ parameters.name }}
           displayName: ${{ parameters.displayName }}
@@ -63,7 +63,7 @@ stages:
               os_version: ${{ parameters.os_version }}
               scaleup: ${{ parameters.scaleup }}
 
-      - template: ../../cni/k8s-e2e/k8s-e2e-job-template.yaml
+      - template: ../../cni/k8s-e2e/k8s-e2e.jobs.yaml
         parameters:
           sub: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
           clusterName: ${{ parameters.clusterName }}-$(commitID)
@@ -82,6 +82,10 @@ stages:
           - ${{ parameters.name }}
           - cni_${{ parameters.os }}
         condition: failed()
+        pool: 
+          type: windows
+          isCustom: true
+          name: $(BUILD_POOL_NAME_DEFAULT)
         steps:
           - template: ../../templates/log-template.yaml
             parameters:
