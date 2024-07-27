@@ -78,10 +78,10 @@ stages:
     - bash: echo "Debug..."
     - bash: echo "$JSON"
       env:
-        JSON: ${{ convertToJson(parameters.e2e_resources) }}
+        JSON: ${{ convertToJson(parameters.e2e_resources.cilium) }}
     - bash: echo "$JSON"
       env:
-        JSON: ${{ convertToJson(parameters.e2e_resources['${{ parameters.suite_name }}']) }}
+        JSON: ${{ convertToJson(parameters.e2e_resources.value['${{ parameters.suite_name }}']) }}
 
   - ${{ each context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
     - ${{ each cluster in context.clusters }}:
