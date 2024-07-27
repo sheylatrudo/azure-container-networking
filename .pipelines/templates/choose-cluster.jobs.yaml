@@ -23,9 +23,9 @@ jobs:
   - ${{ if or(startswith(parameters.cluster_type, 'singletenant'), startswith(parameters.cluster_type, 'multitenant'))  }}:
     - template: /.pipelines/templates/basic-cluster.steps.yaml
       parameters:
-        cluster_name: ${{ parameters.name }}
-        is_dualstack: ${{ contains(parameters.type, 'dualstack') }}
-        is_multitenant: ${{ contains(parameters.type, 'multitenant') }}
+        cluster_name: ${{ parameters.cluster_name }}
+        is_dualstack: ${{ contains(parameters.cluster_type, 'dualstack') }}
+        is_multitenant: ${{ contains(parameters.cluster_type, 'multitenant') }}
         display_name: ${{ parameters.template_parameters.display_name }}
         subscription: ${{ parameters.template_parameters.subscription }}
         region: ${{ parameters.template_parameters.region }}
