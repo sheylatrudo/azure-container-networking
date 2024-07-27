@@ -17,11 +17,6 @@ parameters:
         template: /.pipelines/singletenancy/cilium/cilium-e2e.jobs.yaml
         params:
           os: linux
-      - name: cilium_overlay_linux
-        display_name: Cilium on AKS Overlay
-        template: /.pipelines/singletenancy/cilium/cilium-e2e.jobs.yaml
-        params:
-          os: linux
       clusters:
       - name: ciliume2e-$(commitID)
         type: singletenant
@@ -30,22 +25,21 @@ parameters:
           subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
           create_cmd: swift-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
-
-#    cilium_overlay:
-#      display_name: Cilium on AKS Overlay
-#      e2e_config:
-#      - name: cilium_overlay_linux
-#        template: /.pipelines/singletenancy/cilium-overlay/cilium-overlay-e2e.jobs.yaml
-#        params:
-#          os: linux
-#      clusters:
-#      - name: ciliumovere2e-$(commitID)
-#        type: singletenant
-#        params:
-#          region: $(AKS_CLUSTER_TEST)
-#          subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
-#          create_cmd: overlay-byocni-nokubeproxy-up
-#          vm_size: Standard_B2ms
+    cilium_overlay:
+      e2e_config:
+      - name: cilium_overlay_linux
+        display_name: Cilium on AKS Overlay
+        template: /.pipelines/singletenancy/cilium-overlay/cilium-overlay-e2e.jobs.yaml
+        params:
+          os: linux
+      clusters:
+      - name: ciliumovere2e-$(commitID)
+        type: singletenant
+        params:
+          region: $(AKS_CLUSTER_TEST)
+          subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
+          create_cmd: overlay-byocni-nokubeproxy-up
+          vm_size: Standard_B2ms
         
           
 stages:
