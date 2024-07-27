@@ -40,7 +40,7 @@ steps:
       processes: 8
       attempts: 10
 
-- ${{ elif eq(parameters.dns, true) }}:
+- ${{ elseif eq(parameters.dns, true) }}:
   - template: k8s-e2e.steps.yaml
     parameters:
       test_name: DNS
@@ -51,7 +51,7 @@ steps:
       processes: 8
       attempts: 3
 
-- ${{ elif eq(parameters.portforward, true) }}:
+- ${{ elseif eq(parameters.portforward, true) }}:
   - template: k8s-e2e.steps.yaml
     parameters:
       test_name: Kubectl Portforward
@@ -62,7 +62,7 @@ steps:
       processes: 8
       attempts: 3
 
-- ${{ elif eq(parameters.hostport, true) }}:
+- ${{ elseif eq(parameters.hostport, true) }}:
   - template: k8s-e2e.steps.yaml
     parameters:
       test_name: Host Port
@@ -73,7 +73,7 @@ steps:
       processes: 1 # Has a short serial test
       attempts: 3
 
-- ${{ elif eq(parameters.hybrid, true) }}:
+- ${{ elseif eq(parameters.hybrid, true) }}:
   - ${{ if ne(parameters.os, 'windows') }}:
     - template: k8s-e2e.steps.yaml
         parameters:
@@ -88,7 +88,7 @@ steps:
     - ${{ else }}:
       - info: Hybrid Network Test only supported in Windows OS (selected: ${{ parameters.os }}. Skipping.
 
-- ${{ elif eq(parameters.dualstack, true) }}:
+- ${{ elseif eq(parameters.dualstack, true) }}:
   - template: k8s-e2e.steps.yaml
     parameters:
       name: DualStack
@@ -105,7 +105,7 @@ steps:
         test_name: DualStack Test|Cilium
         ginkgoSkip: 'SCTP|session affinity|should function for service endpoints using hostNetwork' # Cilium dualstack has a known issue with this test https://github.com/cilium/cilium/issues/25135
 
-- ${{ elif eq(parameters.service, true) }}:
+- ${{ elseif eq(parameters.service, true) }}:
   - ${{ if contains(parameters.cni, 'cni') }}:
     - template: k8s-e2e.steps.yaml
       parameters:
@@ -117,7 +117,7 @@ steps:
         processes: 8
         attempts: 3
 
-  - ${{ elif contains(parameters.cni, 'cilium') }}:
+  - ${{ elseif contains(parameters.cni, 'cilium') }}:
     - template: k8s-e2e.steps.yaml
       parameters:
         test_name: Service Conformance|Cilium
