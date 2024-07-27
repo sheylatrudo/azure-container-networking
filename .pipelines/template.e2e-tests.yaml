@@ -98,7 +98,7 @@ stages:
   
         - ${{ each test in resource.value.e2e_config }}:
           - template: ${{ test.template }}
-            ${{ if and(ne(test.params, ''), gt(test.params, 0)) }}:
+            ${{ if and(ne(test.params, ''), gt(length(test.params), 0)) }}:
               parameters:
                 test_name: ${{ test.name }}
                 display_name: ${{ test.display_name }}

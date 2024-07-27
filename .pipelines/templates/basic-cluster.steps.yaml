@@ -3,10 +3,10 @@ parameters:
   type: string
 
 - name: is_dualstack
-  type: bool
+  type: boolean
 
 - name: is_multitenant
-  type: bool
+  type: boolean
 
 - name: display_name
   type: string
@@ -62,19 +62,19 @@ parameters:
   default: ''
 
 - name: continue_on_error
-  type: bool
+  type: boolean
   default: false
 
 
 steps:
 - task: AzureCLI@2
   displayName: Create ${{ parameters.display_name }} Cluster
-  continueOnError: or(
+  continueOnError: ${{ or(
                      parameters.is_dualstack,
                      and(parameters.is_multitenant,
                          parameters.continue_on_error
                      )
-                   )
+                   ) }}
   inputs:
     azureSubscription: ${{ parameters.subscription }}
     scriptLocation: "inlineScript"
