@@ -38,14 +38,21 @@ parameters:
           subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
           create_cmd: overlay-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
-#    name: "cilium_dualstackoverlay_e2e"
-#    displayName: Cilium on AKS DualStack Overlay
-#    os: linux
-#    clusterType: dualstack-byocni-nokubeproxy-up
-#    clusterName: "cildsovere2e"
-#    vmSize: Standard_B2ms
-#    k8sVersion: ""
-#    dependsOn: "containerize"
+    cilium_overlay_dualstack:
+      e2e_config:
+      - name: cilium_overlay_dualstack_linux
+        display_name: Cilium on AKS DualStack Overlay
+        template: /.pipelines/e2e/cilium/cilium-e2e.jobs.yaml
+        params:
+          os: linux
+      clusters:
+      - name: cildsovere2e-$(commitID)
+        type: singletenant
+        params:
+          region: $(AKS_CLUSTER_TEST)
+          subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
+          create_cmd: dualstack-overlay-byocni-nokubeproxy-up
+          vm_size: Standard_B2ms
         
           
 stages:
@@ -69,19 +76,15 @@ stages:
       name: $(BUILD_POOL_NAME_DEFAULT)
     steps:
     - bash: echo "Debug..."
-    - bash: ${{ convertToJson(parameters.e2e_resources) }}
-    - bash: ${{ convertToJson(parameters.e2e_resources['${{ parameters.suite_name }}']) }}
+    - bash: echo "$JSON"
+      env:
+        JSON: ${{ convertToJson(parameters.e2e_resources) }}
+    - bash: echo "$JSON"
+      env:
+        JSON: ${{ convertToJson(parameters.e2e_resources['${{ parameters.suite_name }}']) }}
 
   - ${{ each context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
     - ${{ each cluster in context.clusters }}:
-      - job:
-        pool: 
-          type: windows
-          isCustom: true
-          name: $(BUILD_POOL_NAME_DEFAULT)
-        steps:
-        - bash: ${{ convertToJson(cluster) }}
-        - bash: ${{ convertToJson(context) }}
       - template: /.pipelines/templates/choose-cluster.jobs.yaml
         parameters:
           cluster_name: ${{ cluster.value.name }}
