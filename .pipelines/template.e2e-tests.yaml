@@ -66,11 +66,14 @@ stages:
 
   - ${{ each context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
     - ${{ each cluster in context.clusters }}:
+      - job:
+        steps:
+        - bash: ${{ convertToJson(cluster) }}
+        - bash: ${{ convertToJson(context) }}
       - template: /.pipelines/templates/choose-cluster.jobs.yaml
         parameters:
           cluster_name: ${{ cluster.value.name }}
           cluster_type: ${{ cluster.value.type }}
-          display_name: ${{ context.value.display_name }}
           ${{ if and(ne(cluster.value.params, ''), gt(length(cluster.value.params), 0)) }}:
             template_parameters:
               ${{ each param in cluster.value.params }}:
