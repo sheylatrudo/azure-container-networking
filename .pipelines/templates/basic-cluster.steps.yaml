@@ -16,13 +16,6 @@ parameters:
 
 - name: region
   type: string
-  values:
-  - eastus
-  - eastus2
-  - westus
-  - westus2
-  - eastus2euap
-  - centraluseuap
 
 - name: create_cmd
   type: string
