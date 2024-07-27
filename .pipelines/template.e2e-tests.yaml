@@ -89,24 +89,24 @@ stages:
       - ${{ each cluster in resource.value.clusters }}:
         - template: /.pipelines/templates/choose-cluster.jobs.yaml
           parameters:
-            cluster_name: ${{ cluster.value.name }}
-            cluster_type: ${{ cluster.value.type }}
-            ${{ if and(ne(cluster.value.params, ''), gt(length(cluster.value.params), 0)) }}:
+            cluster_name: ${{ cluster.name }}
+            cluster_type: ${{ cluster.type }}
+            ${{ if and(ne(cluster.params, ''), gt(length(cluster.params), 0)) }}:
               template_parameters:
                 ${{ each param in cluster.value.params }}:
                   ${{ param.key }}: ${{ param.value }}
   
         - ${{ each test in resource.value.e2e_config }}:
-          - template: ${{ test.value.template }}
-            ${{ if and(ne(test.value.params, ''), gt(test.value.params, 0)) }}:
+          - template: ${{ test.template }}
+            ${{ if and(ne(test.params, ''), gt(test.params, 0)) }}:
               parameters:
-                test_name: ${{ test.value.name }}
-                display_name: ${{ test.value.display_name }}
-                cluster_name: ${{ cluster.value.name }}
-                subscription: ${{ cluster.value.subscription }}
+                test_name: ${{ test.name }}
+                display_name: ${{ test.display_name }}
+                cluster_name: ${{ cluster.name }}
+                subscription: ${{ cluster.subscription }}
                 depends_on: 
-                  - create_${{ cluster.value.type }}_cluster_${{ cluster.value.name }}
-                ${{ each param in cluster.value.params }}:
+                  - create_${{ cluster.type }}_cluster_${{ cluster.name }}
+                ${{ each param in cluster.params }}:
                   ${{ param.key }}: ${{ param.value }}
   
   - ${{ each resource in parameters.e2e_resources }}:
@@ -114,6 +114,6 @@ stages:
       - ${{ each cluster in resource.value.clusters }}:
         - template: templates/delete-cluster.yaml
           parameters:
-            cluster_name: ${{ cluster.value.name }}
-            subscription: ${{ cluster.value.subscription }}
-            region: ${{ cluster.value.region }}
+            cluster_name: ${{ cluster.name }}
+            subscription: ${{ cluster.subscription }}
+            region: ${{ cluster.region }}
