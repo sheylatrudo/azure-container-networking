@@ -79,9 +79,6 @@ stages:
     - bash: echo "$JSON"
       env:
         JSON: ${{ convertToJson(parameters.e2e_resources.cilium) }}
-    - bash: echo "$JSON"
-      env:
-        JSON: ${{ convertToJson(parameters.e2e_resources.${{ parameters.suite_name }}) }}
     - bash: echo "$JSON" && echo "$NA"
       env:
         NA: ${{ parameters.suite_name }}
