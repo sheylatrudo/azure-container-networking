@@ -1,0 +1,75 @@
+parameters:
+- name: suite_name
+  type: string
+  values:
+    - cilium
+
+- name: display_name
+  type: string
+
+- name: e2e_resources
+  type: object
+  default:
+    cilium:
+      display_name: Cilium
+      e2e_config:
+      - name: cilium_linux
+        template: /.pipelines/singletenancy/cilium/cilium-e2e.jobs.yaml
+        params:
+          os: linux
+      clusters:
+      - name: ciliume2e-$(commitID)
+        type: singletenant
+        params:
+          region: $(AKS_CLUSTER_TEST)
+          subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
+          create_cmd: swift-byocni-nokubeproxy-up
+          vm_size: Standard_B2ms
+        
+          
+stages:
+- stage: e2e_${{ replace(parameters.suite_name, '-', '_') }}
+  displayName: Run ${{ parameters.display_name }} E2E Tests
+  dependsOn:
+    - setup
+    - containerize
+  variables:
+    commitID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.commitID'] ]
+    TAG: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.Tag'] ]
+    CURRENT_VERSION: $[ stagedependencies.containerize.check_tag.outputs['CurrentTagManifests.currentTagManifests'] ]
+    GOPATH: "$(Agent.TempDirectory)/go" # Go workspace path
+    GOBIN: "$(GOPATH)/bin" # Go binaries path
+    modulePath: "$(GOPATH)/src/github.com/Azure/azure-container-networking"
+  jobs:
+  - ${{ for context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
+    - ${{ for cluster in context.clusters }}:
+      - template: /.pipelines/templates/choose-cluster.jobs.yaml
+        parameters:
+          cluster_name: ${{ cluster.value.name }}
+          cluster_type: ${{ cluster.value.type }}
+          display_name: ${{ context.value.display_name }}
+          ${{ if and(ne(cluster.value.params, ''), gt(length(cluster.value.params), 0)) }}:
+            template_parameters:
+              ${{ for param in cluster.value.params }}:
+                ${{ param.key }}: ${{ param.value }}
+
+      - ${{ for test in context.e2e_config }}:
+        - template: ${{ test.value.template }}
+          ${{ if and(ne(test.value.params, ''), gt(test.value.params, 0)) }}:
+            parameters:
+              suite_name: ${{ test.value.name }}
+              display_name: ${{ context.value.display_name }}
+              cluster_name: ${{ cluster.value.name }}
+              subscription: ${{ cluster.value.subscription }}
+              depends_on: 
+                - create_${{ cluster.value.type }}_cluster_${{ cluster.value.name }}
+              ${{ for param in cluster.value.params }}:
+                ${{ param.key }}: ${{ param.value }}
+  
+  - ${{ for context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
+    - ${{ for cluster in context.clusters }}:
+      - template: templates/delete-cluster.yaml
+        parameters:
+          cluster_name: ${{ cluster.value.name }}
+          subscription: ${{ cluster.value.subscription }}
+          region: ${{ cluster.value.region }}

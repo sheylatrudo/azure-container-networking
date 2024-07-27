@@ -176,7 +176,7 @@ stages:
 - template: template.e2e-tests.yaml
   parameters:
     suite_name: cilium
-    displayName: Cilium
+    display_name: Cilium
 
 ## Cilium Overlay E2E tests
 #- template: singletenancy/cilium-overlay/cilium-overlay-e2e.stages.yaml
