@@ -30,13 +30,13 @@ jobs:
         subscription: ${{ parameters.template_parameters.subscription }}
         region: ${{ parameters.template_parameters.region }}
         create_cmd: ${{ parameters.template_parameters.create_cmd }}
-        ${{ if parameters.template_parameters.os_sku }}:
+        ${{ if ne(parameters.template_parameters.os_sku, '') }}:
           os_sku: ${{ parameters.template_parameters.os_sku }}
-        ${{ if parameters.template_parameters.vm_size }}:
-          vm_size: ${{ parameters.template_parameters.os_sku_win }}
-        ${{ if parameters.template_parameters.os_sku_win }}:
+        ${{ if ne(parameters.template_parameters.vm_size, '' }}:
+          vm_size: ${{ parameters.template_parameters.vm_size }}
+        ${{ if ne(parameters.template_parameters.os_sku_win, '') }}:
           os_sku_win: ${{ parameters.template_parameters.os_sku_win }}
-        ${{ if parameters.template_parameters.vm_size_win }}:
+        ${{ if ne(parameters.template_parameters.vm_size_win, '') }}:
           vm_size_win: ${{ parameters.template_parameters.vm_size_win }}
   
   - ${{ else }}:

@@ -94,7 +94,7 @@ stages:
             cluster_type: ${{ cluster.type }}
             ${{ if and(ne(cluster.params, ''), gt(length(cluster.params), 0)) }}:
               template_parameters:
-                ${{ each param in cluster.value.params }}:
+                ${{ each param in cluster.params }}:
                   ${{ param.key }}: ${{ param.value }}
   
         - ${{ each test in resource.value.e2e_config }}:
