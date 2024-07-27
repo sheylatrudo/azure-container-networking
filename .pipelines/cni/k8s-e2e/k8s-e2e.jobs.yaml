@@ -24,7 +24,7 @@ steps:
   
   - template: /.pipelines/k8s/actions/restart-kubeproxy.steps.yaml
 
-  - ${{ for test in test_cases }}:
+  - ${{ each test in parameters.test_cases }}:
     - template: choose-k8s-e2e-test.steps.yaml
       parameters:
         cluster_name: ${{ parameters.cluster_name }}

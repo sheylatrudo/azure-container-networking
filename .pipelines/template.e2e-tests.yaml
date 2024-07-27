@@ -41,8 +41,8 @@ stages:
     GOBIN: "$(GOPATH)/bin" # Go binaries path
     modulePath: "$(GOPATH)/src/github.com/Azure/azure-container-networking"
   jobs:
-  - ${{ for context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
-    - ${{ for cluster in context.clusters }}:
+  - ${{ each context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
+    - ${{ each cluster in context.clusters }}:
       - template: /.pipelines/templates/choose-cluster.jobs.yaml
         parameters:
           cluster_name: ${{ cluster.value.name }}
@@ -50,10 +50,10 @@ stages:
           display_name: ${{ context.value.display_name }}
           ${{ if and(ne(cluster.value.params, ''), gt(length(cluster.value.params), 0)) }}:
             template_parameters:
-              ${{ for param in cluster.value.params }}:
+              ${{ each param in cluster.value.params }}:
                 ${{ param.key }}: ${{ param.value }}
 
-      - ${{ for test in context.e2e_config }}:
+      - ${{ each test in context.e2e_config }}:
         - template: ${{ test.value.template }}
           ${{ if and(ne(test.value.params, ''), gt(test.value.params, 0)) }}:
             parameters:
@@ -63,11 +63,11 @@ stages:
               subscription: ${{ cluster.value.subscription }}
               depends_on: 
                 - create_${{ cluster.value.type }}_cluster_${{ cluster.value.name }}
-              ${{ for param in cluster.value.params }}:
+              ${{ each param in cluster.value.params }}:
                 ${{ param.key }}: ${{ param.value }}
   
-  - ${{ for context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
-    - ${{ for cluster in context.clusters }}:
+  - ${{ each context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
+    - ${{ each cluster in context.clusters }}:
       - template: templates/delete-cluster.yaml
         parameters:
           cluster_name: ${{ cluster.value.name }}
