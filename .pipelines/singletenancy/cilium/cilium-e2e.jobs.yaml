@@ -39,11 +39,16 @@ jobs:
   steps:
   - ${{ if eq(parameters.test_name, 'cilium') }}:
     - template: cilium-e2e-step-template.yaml
+      parameters:
+        name: ${{ parameters.name }}
+        clusterName: ${{ parameters.cluster_name }}
   - ${{ elif eq(parameters.test_name, 'cilium_overlay') }}:
     - template: ../cilium-overlay/cilium-e2e-overlay-step-template.yaml
-    parameters:
-      name: ${{ parameters.name }}
-      clusterName: ${{ parameters.cluster_name }}
+      parameters:
+        name: ${{ parameters.name }}
+        clusterName: ${{ parameters.cluster_name }}
+  - ${{ else }}:
+    - error: Invalid Cilium Test Selection. ${{ parameters.test_name }}
 
 - job: cni_${{ parameters.test_name }}
   condition: and( not(canceled()), not(failed()) )
