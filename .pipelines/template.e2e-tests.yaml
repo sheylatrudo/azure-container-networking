@@ -14,7 +14,7 @@ parameters:
       e2e_config:
       - name: cilium_linux
         display_name: Cilium
-        template: /.pipelines/singletenancy/cilium/cilium-e2e.jobs.yaml
+        template: /.pipelines/e2e/cilium/cilium-e2e.jobs.yaml
         params:
           os: linux
       clusters:
@@ -29,7 +29,7 @@ parameters:
       e2e_config:
       - name: cilium_overlay_linux
         display_name: Cilium on AKS Overlay
-        template: /.pipelines/singletenancy/cilium-overlay/cilium-overlay-e2e.jobs.yaml
+        template: /.pipelines/e2e/cilium/cilium-e2e.jobs.yaml
         params:
           os: linux
       clusters:
@@ -47,11 +47,11 @@ stages:
   displayName: Run ${{ parameters.display_name }} E2E Tests
   dependsOn:
     - setup
-    - containerize
+#    - containerize
   variables:
     commitID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.commitID'] ]
     TAG: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.Tag'] ]
-    CURRENT_VERSION: $[ stagedependencies.containerize.check_tag.outputs['CurrentTagManifests.currentTagManifests'] ]
+#    CURRENT_VERSION: $[ stagedependencies.containerize.check_tag.outputs['CurrentTagManifests.currentTagManifests'] ]
     GOPATH: "$(Agent.TempDirectory)/go" # Go workspace path
     GOBIN: "$(GOPATH)/bin" # Go binaries path
     modulePath: "$(GOPATH)/src/github.com/Azure/azure-container-networking"

@@ -1,0 +1,91 @@
+parameters:
+- name: test_name
+  type: string
+  values:
+  - cilium_linux
+  - cilium_overlay_linux
+  - cilium_overlay_dualstack
+  - cilium_overlay_withhubble
+
+- name: display_name
+  type: string
+
+- name: cluster_name
+  type: string
+
+- name: subscription 
+  type: string
+
+- name: os
+  type: string
+  values:
+  - linux
+  - windows
+
+- name: depends_on
+  type: object
+  default: ''
+
+jobs:
+- job: run_e2e_${{ parameters.test_name }}
+  displayName: ${{ parameters.display_name }} Test Suite - (${{ parameters.test_name }})
+  dependsOn: ${{ parameters.depends_on }}
+  timeoutInMinutes: 120
+  pool: 
+    type: linux
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
+    demands:
+    - agent.os -equals Linux
+    - Role -equals $(CUSTOM_E2E_ROLE)
+  steps:
+  - ${{ if eq(parameters.test_name, 'cilium_linux') }}:
+    - template: tests/cilium.steps.yaml
+  - ${{ elif eq(parameters.test_name, 'cilium_overlay_linux') }}:
+    - template: tests/cilium/cilium-overlay.steps.yaml
+  - ${{ elif eq(parameters.test_name, 'cilium_overlay_dualstack') }}:
+    - template: tests/cilium/cilium-overlay-dualstack.steps.yaml
+  - ${{ elif eq(parameters.test_name, 'cilium_overlay_withhubble') }}:
+    - template: tests/cilium/cilium-overlay-withhubble.steps.yaml
+    parameters:
+      cluster_name: ${{ parameters.cluster_name }}
+      subscription: ${{ parameters.subscription }}
+
+- job: cni_${{ parameters.test_name }}
+  condition: and( not(canceled()), not(failed()) )
+  displayName: CNI k8s E2E ${{ parameters.os }}
+  dependsOn: ${{ parameters.depends_on }}
+  pool: 
+    type: windows
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
+  steps:
+  - template: ../../../cni/k8s-e2e/k8s-e2e.jobs.yaml
+    parameters:
+      subscription: ${{ parameters.subscription }}
+      clusterName: ${{ parameters.cluster_name }}
+      os: ${{ parameters.os }}
+      cni: cilium
+      dependsOn: run_e2e_${{ parameters.test_name }}
+      test_cases:
+        - datapath
+        - dns
+        - portforward
+        - service
+
+- job: failedE2ELogs
+  displayName: "Failure Logs"
+  dependsOn:
+    - run_e2e_${{ parameters.test_name }}
+    - cni_${{ parameters.test_name }}
+  condition: failed()
+  pool: 
+    type: windows
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
+  steps:
+  - template: ../../../templates/log-template.yaml
+    parameters:
+      clusterName: ${{ parameters.cluster_name }}
+      os: ${{ parameters.os }}
+      cni: cilium
