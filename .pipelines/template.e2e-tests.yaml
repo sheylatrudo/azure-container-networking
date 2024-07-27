@@ -12,7 +12,7 @@ parameters:
       e2e_config:
       - name: cilium_linux
         display_name: Cilium
-        template: /.pipelines/e2e/cilium/cilium-e2e.jobs.yaml
+        template: /.pipelines/e2e/suites/cilium/cilium-e2e.jobs.yaml
         params:
           os: linux
       clusters:
@@ -28,7 +28,7 @@ parameters:
       e2e_config:
       - name: cilium_overlay_linux
         display_name: Cilium on AKS Overlay
-        template: /.pipelines/e2e/cilium/cilium-e2e.jobs.yaml
+        template: /.pipelines/e2e/suites/cilium/cilium-e2e.jobs.yaml
         params:
           os: linux
       clusters:
@@ -43,7 +43,7 @@ parameters:
       e2e_config:
       - name: cilium_overlay_dualstack_linux
         display_name: Cilium on AKS DualStack Overlay
-        template: /.pipelines/e2e/cilium/cilium-e2e.jobs.yaml
+        template: /.pipelines/e2e/suites/cilium/cilium-e2e.jobs.yaml
         params:
           os: linux
       clusters:
