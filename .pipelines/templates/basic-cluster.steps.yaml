@@ -1,0 +1,108 @@
+parameters:
+- name: cluster_name
+  type: string
+
+- name: is_dualstack
+  type: bool
+
+- name: is_multitenant
+  type: bool
+
+- name: display_name
+  type: string
+
+- name: subscription
+  type: string
+
+- name: region
+  type: string
+  values:
+  - eastus
+  - eastus2
+  - westus
+  - westus2
+  - eastus2euap
+  - centraluseuap
+
+- name: create_cmd
+  type: string
+  values:
+    - swift-byocni-nokubeproxy-up
+    - overlay-byocni-nokubeproxy-up
+    - dualstack-byocni-nokubeproxy-up
+    - overlay-byocni-nokubeproxy-up
+    - overlay-byocni-up
+    - swift-byocni-up
+    - vnetscale-swift-byocni-up
+    - linux-cniv1-up
+    - windows-cniv1-up
+    - dualstack-overlay-byocni-up
+    - swiftv2-multitenancy-cluster-up
+
+- name: os_sku
+  type: string
+  default: ''
+  values:
+  - linux
+  - windows
+
+- name: vm_size
+  type: string
+  default: ''
+
+# Currently we only support Windows2022
+- name: os_sku_win
+  type: string
+  default: "Windows2022" 
+  values:
+  - Windows2022
+
+- name: vm_size_win
+  type: string
+  default: ''
+
+- name: continue_on_error
+  type: bool
+  default: false
+
+
+steps:
+- task: AzureCLI@2
+  displayName: Create ${{ parameters.display_name }} Cluster
+  continueOnError: or(
+                     parameters.is_dualstack,
+                     and(parameters.is_multitenant,
+                         parameters.continue_on_error
+                     )
+                   )
+  inputs:
+    azureSubscription: ${{ parameters.subscription }}
+    scriptLocation: "inlineScript"
+    scriptType: "bash"
+    addSpnToEnvironment: true
+    inlineScript: |
+      set -ex
+      echo >&2 "##[info]Check az version"
+      az version
+      if [[ $IS_DUALSTACK -eq true ]]; then
+        echo >&2 "##[info]Install az cli extension preview"
+        az extension add --name aks-preview
+        az extension update --name aks-preview
+      fi
+      mkdir -p ~/.kube/
+      make -C ./hack/aks azcfg AZCLI=az
+
+      echo >&2 "##[group]Create Cluster"
+      make -C ./hack/aks "${CREATE_CLUSTER_CMD}" AZCLI=az
+      echo >&2 "##[endgroup]"
+      echo "Cluster successfully created"
+  env:
+    CREATE_CLUSTER_CMD: ${{ parameters.create_cmd }}
+    IS_DUALSTACK: ${{ parameters.is_dualstack }}
+    REGION: ${{ parameters.region }}
+    SUB: ${{ parameters.subscription }}
+    CLUSTER: ${{ parameters.cluster_name }}
+    VM_SIZE: ${{ parameters.vm_size }}
+    OS: ${{ parameters.os_sku }}
+    VM_SIZE_WIN: ${{ parameters.vm_size_win }}
+    OS_SKU_WIN: ${{ parameters.os_sku_win }}

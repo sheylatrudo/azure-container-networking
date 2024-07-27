@@ -1,6 +1,6 @@
 parameters:
   name: ""
-  displayName: ""
+  display_name: ""
   clusterType: ""
   clusterName: ""
   vmSize: ""
@@ -9,81 +9,81 @@ parameters:
   os: "linux"
 
 stages:
-  - stage: ${{ parameters.clusterName }}
-    displayName: Create Cluster - ${{ parameters.displayName }}
+- stage: cilium_e2e
+  displayName: Run E2E Tests - ${{ parameters.display_name }}
+  ${{ if ne(parameters.dependsOn, '') }}:
     dependsOn:
       - ${{ parameters.dependsOn }}
-      - setup
-    variables:
-      commitID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.commitID'] ]
-    jobs:
-      - template: ../../templates/create-cluster.jobs.yaml
-        parameters:
-          name: ${{ parameters.name }}
-          displayName: ${{ parameters.displayName }}
-          clusterType: ${{ parameters.clusterType }}
-          clusterName: ${{ parameters.clusterName }}-$(commitID)
-          vmSize: ${{ parameters.vmSize }}
-          k8sVersion: ${{ parameters.k8sVersion }}
-          dependsOn: ${{ parameters.dependsOn }}
-          region: $(REGION_AKS_CLUSTER_TEST)
+  variables:
+    commitID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.commitID'] ]
+  jobs:
+    - template: /.pipelines/templates/create-cluster.jobs.yaml
+      parameters:
+        name: ${{ parameters.name }}
+        displayName: ${{ parameters.displayName }}
+        clusterType: ${{ parameters.clusterType }}
+        clusterName: ${{ parameters.clusterName }}-$(commitID)
+        vmSize: ${{ parameters.vmSize }}
+        k8sVersion: ${{ parameters.k8sVersion }}
+        dependsOn: ${{ parameters.dependsOn }}
+        region: $(REGION_AKS_CLUSTER_TEST)
 
-  - stage: ${{ parameters.name }}
-    displayName: E2E - ${{ parameters.displayName }}
-    dependsOn:
-    - setup
-    - publish
-    - ${{ parameters.clusterName }}
-    variables:
-      TAG: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.Tag'] ]
-      CURRENT_VERSION: $[ stagedependencies.containerize.check_tag.outputs['CurrentTagManifests.currentTagManifests'] ]
-      commitID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.commitID'] ]
-      GOPATH: "$(Agent.TempDirectory)/go" # Go workspace path
-      GOBIN: "$(GOPATH)/bin" # Go binaries path
-      modulePath: "$(GOPATH)/src/github.com/Azure/azure-container-networking"
-    condition: and(succeeded(), eq(variables.TAG, variables.CURRENT_VERSION))
-    jobs:
-      - job: ${{ parameters.name }}
-        displayName: Cilium Test Suite - (${{ parameters.name }})
-        timeoutInMinutes: 120
-        pool: 
-          type: linux
-          isCustom: true
-          name: $(BUILD_POOL_NAME_DEFAULT)
-          demands:
-          - agent.os -equals Linux
-          - Role -equals $(CUSTOM_E2E_ROLE)
-        steps:
-          - template: cilium-e2e-step-template.yaml
-            parameters:
-              name: ${{ parameters.name }}
-              clusterName: ${{ parameters.clusterName }}-$(commitID)
+- stage: ${{ parameters.name }}
+  displayName: E2E - ${{ parameters.displayName }}
+  dependsOn:
+  - setup
+  - publish
+  - ${{ parameters.clusterName }}
+  variables:
+    TAG: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.Tag'] ]
+    CURRENT_VERSION: $[ stagedependencies.containerize.check_tag.outputs['CurrentTagManifests.currentTagManifests'] ]
+    commitID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.commitID'] ]
+    GOPATH: "$(Agent.TempDirectory)/go" # Go workspace path
+    GOBIN: "$(GOPATH)/bin" # Go binaries path
+    modulePath: "$(GOPATH)/src/github.com/Azure/azure-container-networking"
+  condition: and(succeeded(), eq(variables.TAG, variables.CURRENT_VERSION))
+  jobs:
+    - job: ${{ parameters.name }}
+      displayName: Cilium Test Suite - (${{ parameters.name }})
+      timeoutInMinutes: 120
+      pool: 
+        type: linux
+        isCustom: true
+        name: $(BUILD_POOL_NAME_DEFAULT)
+        demands:
+        - agent.os -equals Linux
+        - Role -equals $(CUSTOM_E2E_ROLE)
+      steps:
+        - template: cilium-e2e-step-template.yaml
+          parameters:
+            name: ${{ parameters.name }}
+            clusterName: ${{ parameters.clusterName }}-$(commitID)
 
-      - template: ../../cni/k8s-e2e/k8s-e2e.jobs.yaml
-        parameters:
-          sub: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
-          clusterName: ${{ parameters.clusterName }}-$(commitID)
-          os: ${{ parameters.os }}
-          cni: cilium
-          dependsOn: ${{ parameters.name }}
-          datapath: true
-          dns: true
-          portforward: true
-          service: true
+    - template: ../../cni/k8s-e2e/k8s-e2e.jobs.yaml
+      parameters:
+        sub: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
+        clusterName: ${{ parameters.clusterName }}-$(commitID)
+        os: ${{ parameters.os }}
+        cni: cilium
+        dependsOn: ${{ parameters.name }}
+        datapath: true
+        dns: true
+        portforward: true
+        service: true
 
-      - job: failedE2ELogs
-        displayName: "Failure Logs"
-        dependsOn:
-          - ${{ parameters.name }}
-          - cni_${{ parameters.os }}
-        condition: failed()
-        pool: 
-          type: windows
-          isCustom: true
-          name: $(BUILD_POOL_NAME_DEFAULT)
-        steps:
-          - template: ../../templates/log-template.yaml
-            parameters:
-              clusterName: ${{ parameters.clusterName }}-$(commitID)
-              os: ${{ parameters.os }}
-              cni: cilium
+    - job: failedE2ELogs
+      displayName: "Failure Logs"
+      dependsOn:
+        - ${{ parameters.name }}
+        - cni_${{ parameters.os }}
+      condition: failed()
+      pool: 
+        type: windows
+        isCustom: true
+        name: $(BUILD_POOL_NAME_DEFAULT)
+      steps:
+        - template: ../../templates/log-template.yaml
+          parameters:
+            clusterName: ${{ parameters.clusterName }}-$(commitID)
+            os: ${{ parameters.os }}
+            cni: cilium

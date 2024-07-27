@@ -1,0 +1,79 @@
+parameters:
+- name: test_name
+  type: string
+
+- name: name
+  type: string
+
+- name: os
+  type: string
+
+- name: ginkgo_focus
+  type: string
+  default: ''
+
+- name: ginkgo_skip
+  type: string
+  default: ''
+
+- name: processes
+  type: number
+  default: 1
+
+- name: attempts
+  type: number
+  default: 3
+
+
+steps:
+  - script: |
+      set -ex
+
+      # ginkgo_skip cant handle only |LinuxOnly. Need to have check
+      if [[ $GINKGO_SKIP -ne '' ]] && [[ $OS = windows ]]; then
+        SKIP="|LinuxOnly"
+      elif  [[ $OS = windows ]]; then
+        SKIP="LinuxOnly"
+      fi
+
+      # Taint Linux nodes so that windows tests do not run on them
+      if  [[ $OS = windows ]]; then
+        kubectl rollout status -n kube-system deployment/konnectivity-agent --timeout=3m
+        kubectl taint nodes -l kubernetes.azure.com/mode=system node-role.kubernetes.io/control-plane:NoSchedule
+      # Taint Windows nodes so that Linux tests do not run on them
+      elif  [[ $OS = linux ]]; then
+        kubectl taint nodes -l kubernetes.azure.com/mode=user node-role.kubernetes.io/control-plane:NoSchedule
+      fi
+
+      # Deprecated flags. Change once k8s minimum version supported is > 1.24
+      # nodes -> procs
+      # flakeAttempts -> flake-attempts
+      # dryRun -> dry-run
+
+      ./ginkgo --nodes="$GINKGO_PROCESSES" \
+      ./e2e.test -- \
+      --num-nodes=2 \
+      --provider=skeleton \
+      --ginkgo.focus="$GINKGO_FOCUS" \
+      --ginkgo.skip="${GINKGO_SKIP}$SKIP" \
+      --ginkgo.flakeAttempts="$GINKGO_ATTEMPTS" \
+      --ginkgo.v \
+      --node-os-distro="$OS" \
+      --kubeconfig=$HOME/.kube/config
+
+      # Untaint Linux nodes once testing is complete
+      if [[ $OS = windows ]]; then
+        kubectl taint nodes -l kubernetes.azure.com/mode=system node-role.kubernetes.io/control-plane:NoSchedule-
+      fi
+
+      # Untaint Windows nodes once testing is complete
+      if [[ $OS = linux ]]; then
+        kubectl taint nodes -l kubernetes.azure.com/mode=user node-role.kubernetes.io/control-plane:NoSchedule-
+      fi
+    displayName: [${{ parameters.test_name }}] K8s E2E
+    env:
+      GINKGO_SKIP: ${{ parameters.ginkgo_skip }}
+      GINKGO_FOCUS: ${{ parameters.ginkgo_focus }}
+      GINKGO_ATTEMPTS: ${{ parameters.attempts }}
+      GINKGO_PROCESSES: ${{ parameters.processes }}
+      OS: ${{ parameters.os }}

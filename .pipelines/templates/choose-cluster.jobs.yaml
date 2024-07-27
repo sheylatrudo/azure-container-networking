@@ -1,0 +1,43 @@
+parameters:
+- name: cluster_name
+  type: string
+
+- name: cluster_type
+  default: singletenant
+  values:
+  - singletenant
+  - singletenant-dualstack
+  - multitenant
+
+- name: template_parameters
+  type: object
+
+jobs:
+- job: create_${{ parameters.cluster_type }}_cluster_${{ parameters.cluster_name }}
+  displayName: Provision Cluster (${{ parameters.cluster_type }})
+  pool: 
+    type: windows
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
+  steps:
+  - ${{ if or(startswith(parameters.cluster_type, 'singletenant'), startswith(parameters.cluster_type, 'multitenant'))  }}:
+    - template: /.pipelines/templates/basic-cluster.steps.yaml
+      parameters:
+        cluster_name: ${{ parameters.name }}
+        is_dualstack: ${{ contains(parameters.type, 'dualstack') }}
+        is_multitenant: ${{ contains(parameters.type, 'multitenant') }}
+        display_name: ${{ parameters.template_parameters.display_name }}
+        subscription: ${{ parameters.template_parameters.subscription }}
+        region: ${{ parameters.template_parameters.region }}
+        create_cmd: ${{ parameters.template_parameters.create_cmd }}
+        ${{ if parameters.template_parameters.os_sku }}:
+          os_sku: ${{ parameters.template_parameters.os_sku }}
+        ${{ if parameters.template_parameters.vm_size }}:
+          vm_size: ${{ parameters.template_parameters.os_sku_win }}
+        ${{ if parameters.template_parameters.os_sku_win }}:
+          os_sku_win: ${{ parameters.template_parameters.os_sku_win }}
+        ${{ if parameters.template_parameters.vm_size_win }}:
+          vm_size_win: ${{ parameters.template_parameters.vm_size_win }}
+  
+  - ${{ else }}:
+    - error: Invalid Cluster Selection. Select one of 'singletenant', 'singletenant-dualstack' or 'multitenant'.

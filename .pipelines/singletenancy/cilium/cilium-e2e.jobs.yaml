@@ -1,0 +1,79 @@
+parameters:
+- name: suite_name
+  type: string
+
+- name: display_name
+  type: string
+
+- name: cluster_name
+  type: string
+
+- name: subscription 
+  type: string
+
+- name: os
+  type: string
+  values:
+  - linux
+  - windows
+
+- name: depends_on
+  type: object
+  default: ''
+
+jobs:
+- job: run_e2e_${{ parameters.suite_name }}
+  displayName: ${{ parameters.display_name }} Test Suite - (${{ parameters.suite_name }})
+  dependsOn: ${{ parameters.depends_on }}
+  timeoutInMinutes: 120
+  pool: 
+    type: linux
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
+    demands:
+    - agent.os -equals Linux
+    - Role -equals $(CUSTOM_E2E_ROLE)
+  steps:
+    - template: cilium-e2e-step-template.yaml
+      parameters:
+        name: ${{ parameters.name }}
+        clusterName: ${{ parameters.cluster_name }}
+
+- job: cni_${{ parameters.suite_name }}
+  condition: and( not(canceled()), not(failed()) )
+  displayName: CNI k8s E2E ${{ parameters.os }}
+  dependsOn: ${{ parameters.depends_on }}
+  pool: 
+    type: windows
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
+  steps:
+  - template: ../../cni/k8s-e2e/k8s-e2e.jobs.yaml
+    parameters:
+      subscription: ${{ parameters.subscription }}
+      clusterName: ${{ parameters.cluster_name }}
+      os: ${{ parameters.os }}
+      cni: cilium
+      dependsOn: run_e2e_${{ parameters.suite_name }}
+      test_cases:
+        - datapath
+        - dns
+        - portforward
+        - service
+
+- job: failedE2ELogs
+  displayName: "Failure Logs"
+  dependsOn:
+    - run_e2e_${{ parameters.suite_name }}
+    - cni_${{ parameters.suite_name }}
+  condition: failed()
+  pool: 
+    type: windows
+    isCustom: true
+    name: $(BUILD_POOL_NAME_DEFAULT)
+  steps:
+  - template: ../../templates/log-template.yaml
+    parameters:
+      clusterName: ${{ parameters.cluster_name }}
+      os: ${{ parameters.os }}
+      cni: cilium

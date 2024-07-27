@@ -1,0 +1,41 @@
+
+stages:
+- stage: binaries
+  displayName: Build Binaries
+  dependsOn:
+    - setup
+  jobs:
+    - job: build
+      displayName: Build Binaries
+      variables:
+        STORAGE_ID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.StorageID'] ]
+      pool: 
+        type: windows
+        isCustom: true
+        name: $(BUILD_POOL_NAME_DEFAULT)
+      steps:
+        - script: |
+            make ipv6-hp-bpf-lib
+            make all-binaries-platforms
+          displayName: "Build all platform binaries"
+
+        - script: |
+            mkdir -p ./output/bins
+            cd ./output
+            find . -name '*.tgz' -print -exec mv -t ./bins/ {} +
+            find . -name '*.zip' -print -exec mv -t ./bins/ {} +
+            shopt -s extglob
+            rm -rf !("bins")
+          displayName: "Prepare Artifacts"
+
+        - task: CopyFiles@2
+          inputs:
+            sourceFolder: drop_binaries_build
+            targetFolder: $(Build.ArtifactStagingDirectory)
+
+        # updated from 'output'
+        - task: PublishPipelineArtifact@1
+          inputs:
+            artifact: "drop_binaries_build"
+            targetPath: $(Build.ArtifactStagingDirectory)
+            publishLocation: pipeline

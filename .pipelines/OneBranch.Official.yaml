@@ -93,7 +93,9 @@ extends:
               name: "EnvironmentalVariables"
               displayName: "Set environmental variables"
               condition: always()
-    - ${{ if contains(variables['Build.SourceBranch'], 'refs/pull') }}:
-      - template: template.pipeline.yaml
-    - ${{ else }}:
-      - template: template.pullrequest.yaml
+    #- ${{ if contains(variables['Build.SourceBranch'], 'refs/pull') }}:
+    - template: template.binaries.yaml
+    - template: template.unittests.yaml
+    - template: template.pipeline.yaml
+    #- ${{ else }}:
+    #  - template: template.pullrequest.yaml

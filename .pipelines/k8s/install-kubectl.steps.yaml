@@ -1,0 +1,32 @@
+parameters:
+- name: cluster_name
+  type: string
+
+- name: k8s_version
+  type: string
+
+- name: subscription
+  type: string
+  
+steps:
+  - task: AzureCLI@1
+    inputs:
+      azureSubscription: ${{ parameters.sub }}
+      scriptLocation: "inlineScript"
+      scriptType: "bash"
+      addSpnToEnvironment: true
+      inlineScript: |
+        set -e
+        make -C ./hack/aks set-kubeconf AZCLI=az CLUSTER="$CLUSTER_NAME"
+
+        # sig-release provides test suite tarball(s) per k8s release. Just need to provide k8s version "v1.xx.xx"
+        # pulling k8s version from AKS.
+        eval k8sVersion="v"$( az aks show -g "$CLUSTER_NAME" -n "$CLUSTER_NAME" --query "currentKubernetesVersion")
+        echo $k8sVersion
+        curl -L https://dl.k8s.io/$k8sVersion/kubernetes-test-linux-amd64.tar.gz -o ./kubernetes-test-linux-amd64.tar.gz
+
+        # https://github.com/kubernetes/sig-release/blob/master/release-engineering/artifacts.md#content-of-kubernetes-test-system-archtargz-on-example-of-kubernetes-test-linux-amd64targz-directories-removed-from-list
+        # explictly unzip and strip directories from ginkgo and e2e.test
+        tar -xvzf kubernetes-test-linux-amd64.tar.gz --strip-components=3 kubernetes/test/bin/ginkgo kubernetes/test/bin/e2e.test
+    env:
+      CLUSTER_NAME: ${{ parameters.cluster_name }}

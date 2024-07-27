@@ -1,0 +1,138 @@
+parameters:
+- name: cluster_name
+  type: string
+
+- name: cni
+  type: string
+  values:
+  - cni
+  - cilium
+
+- name: os
+  type: string
+  values:
+  - windows
+  - linux
+
+- name: is_dualstack
+  type: bool
+
+- name: test_selection
+  type: string
+  values:
+    - datapath
+    - dns
+    - portforward
+    - service
+    - hostport
+    - hybrid
+
+
+steps:
+- ${{ if eq(parameters.test_selection, 'datapath') }}:
+  - template: k8s-e2e.steps.yaml
+    parameters:
+      test_name: Datapath
+      name: datapath
+      ginkgoFocus: '(.*).Networking.should|(.*).Networking.Granular|(.*)kubernetes.api'
+      ginkgoSkip: 'SCTP|Disruptive|Slow|hostNetwork|kube-proxy|IPv6'
+      os: ${{ parameters.os }}
+      processes: 8
+      attempts: 10
+
+- ${{ elif eq(parameters.dns, true) }}:
+  - template: k8s-e2e.steps.yaml
+    parameters:
+      test_name: DNS
+      name: dns
+      ginkgoFocus: '\[sig-network\].DNS.should'
+      ginkgoSkip: 'resolv|256 search'
+      os: ${{ parameters.os }}
+      processes: 8
+      attempts: 3
+
+- ${{ elif eq(parameters.portforward, true) }}:
+  - template: k8s-e2e.steps.yaml
+    parameters:
+      test_name: Kubectl Portforward
+      name: portforward
+      ginkgoFocus: '\[sig-cli\].Kubectl.Port'
+      ginkgoSkip: ''
+      os: ${{ parameters.os }}
+      processes: 8
+      attempts: 3
+
+- ${{ elif eq(parameters.hostport, true) }}:
+  - template: k8s-e2e.steps.yaml
+    parameters:
+      test_name: Host Port
+      name: hostport
+      ginkgoFocus: '\[sig-network\](.*)HostPort|\[sig-scheduling\](.*)hostPort'
+      ginkgoSkip: 'SCTP|exists conflict' # Skip slow 5 minute test
+      os: ${{ parameters.os }}
+      processes: 1 # Has a short serial test
+      attempts: 3
+
+- ${{ elif eq(parameters.hybrid, true) }}:
+  - ${{ if ne(parameters.os, 'windows') }}:
+    - template: k8s-e2e.steps.yaml
+        parameters:
+          test_name: Hybrid Network
+          name: hybrid
+          ginkgoFocus: '\[sig-windows\].Hybrid'
+          ginkgoSkip: ''
+          os: ${{ parameters.os }}
+          processes: 8
+          attempts: 3
+
+    - ${{ else }}:
+      - info: Hybrid Network Test only supported in Windows OS (selected: ${{ parameters.os }}. Skipping.
+
+- ${{ elif eq(parameters.dualstack, true) }}:
+  - template: k8s-e2e.steps.yaml
+    parameters:
+      name: DualStack
+      clusterName: ${{ parameters.cluster_name }}
+      ginkgoFocus: '\[Feature:IPv6DualStack\]'
+      os: ${{ parameters.os }}
+      processes: 8
+      attempts: 3
+      ${{ if not(contains(parameters.cni, 'cilium')) }}:
+        test_name: DualStack Test
+        ginkgoSkip: 'SCTP|session affinity'
+
+      ${{ else }}:
+        test_name: DualStack Test|Cilium
+        ginkgoSkip: 'SCTP|session affinity|should function for service endpoints using hostNetwork' # Cilium dualstack has a known issue with this test https://github.com/cilium/cilium/issues/25135
+
+- ${{ elif eq(parameters.service, true) }}:
+  - ${{ if contains(parameters.cni, 'cni') }}:
+    - template: k8s-e2e.steps.yaml
+      parameters:
+        test_name: Service Conformance
+        ginkgoFocus: 'Services.*\[Conformance\].*'
+        ginkgoSkip: ''
+        os: ${{ parameters.os }}
+        name: service
+        processes: 8
+        attempts: 3
+
+  - ${{ elif contains(parameters.cni, 'cilium') }}:
+    - template: k8s-e2e.steps.yaml
+      parameters:
+        test_name: Service Conformance|Cilium
+        ginkgoFocus: 'Services.*\[Conformance\].*'
+        # Cilium does not support this feature. For more info on test: 
+        # https://github.com/kubernetes/kubernetes/blame/e602e9e03cd744c23dde9fee09396812dd7bdd93/test/conformance/testdata/conformance.yaml#L1780-L1788
+        ginkgoSkip: 'should serve endpoints on same port and different protocols' 
+        os: ${{ parameters.os }}
+        name: service
+        processes: 8
+        attempts: 3
+  
+  - ${{ else }}:
+    - info: Service Test not supported for cni selection: '${{ parameters.cni }}'.
+
+- ${{ else }}:
+  - error: Selected Test (${{ parameters.test_selection }}) invalid for cni and os (${{ parameters.cni }} / ${{ parameters.os }}).
+
