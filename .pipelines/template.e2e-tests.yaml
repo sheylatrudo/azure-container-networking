@@ -38,6 +38,14 @@ parameters:
           subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
           create_cmd: overlay-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
+#    name: "cilium_dualstackoverlay_e2e"
+#    displayName: Cilium on AKS DualStack Overlay
+#    os: linux
+#    clusterType: dualstack-byocni-nokubeproxy-up
+#    clusterName: "cildsovere2e"
+#    vmSize: Standard_B2ms
+#    k8sVersion: ""
+#    dependsOn: "containerize"
         
           
 stages:
@@ -61,6 +69,8 @@ stages:
       name: $(BUILD_POOL_NAME_DEFAULT)
     steps:
     - bash: echo "Debug..."
+    - bash: ${{ convertToJson(parameters.e2e_resources) }}
+    - bash: ${{ convertToJson(parameters.e2e_resources['${{ parameters.suite_name }}']) }}
 
   - ${{ each context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
     - ${{ each cluster in context.clusters }}:
