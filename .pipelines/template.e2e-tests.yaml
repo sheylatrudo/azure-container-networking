@@ -62,6 +62,7 @@ stages:
     GOBIN: "$(GOPATH)/bin" # Go binaries path
     modulePath: "$(GOPATH)/src/github.com/Azure/azure-container-networking"
   jobs:
+  - info: Not sure why
   - ${{ each context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
     - ${{ each cluster in context.clusters }}:
       - template: /.pipelines/templates/choose-cluster.jobs.yaml
