@@ -87,34 +87,36 @@ stages:
         NA: ${{ parameters.suite_name }}
         JSON: ${{ convertToJson(parameters['e2e_resources']['${{ parameters.suite_name }}']) }}
 
-  - ${{ each context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
-    - ${{ each cluster in context.clusters }}:
-      - template: /.pipelines/templates/choose-cluster.jobs.yaml
-        parameters:
-          cluster_name: ${{ cluster.value.name }}
-          cluster_type: ${{ cluster.value.type }}
-          ${{ if and(ne(cluster.value.params, ''), gt(length(cluster.value.params), 0)) }}:
-            template_parameters:
-              ${{ each param in cluster.value.params }}:
-                ${{ param.key }}: ${{ param.value }}
-
-      - ${{ each test in context.e2e_config }}:
-        - template: ${{ test.value.template }}
-          ${{ if and(ne(test.value.params, ''), gt(test.value.params, 0)) }}:
-            parameters:
-              test_name: ${{ test.value.name }}
-              display_name: ${{ test.value.display_name }}
-              cluster_name: ${{ cluster.value.name }}
-              subscription: ${{ cluster.value.subscription }}
-              depends_on: 
-                - create_${{ cluster.value.type }}_cluster_${{ cluster.value.name }}
-              ${{ each param in cluster.value.params }}:
-                ${{ param.key }}: ${{ param.value }}
+  - ${{ each resource in parameters.e2e_resources }}:
+    - ${{ if eq(resource.key, parameters.suite_name) }}:
+      - ${{ each cluster in resource.value.context.clusters }}:
+        - template: /.pipelines/templates/choose-cluster.jobs.yaml
+          parameters:
+            cluster_name: ${{ cluster.value.name }}
+            cluster_type: ${{ cluster.value.type }}
+            ${{ if and(ne(cluster.value.params, ''), gt(length(cluster.value.params), 0)) }}:
+              template_parameters:
+                ${{ each param in cluster.value.params }}:
+                  ${{ param.key }}: ${{ param.value }}
   
-  - ${{ each context in parameters.e2e_resources['${{ parameters.suite_name }}'] }}:
-    - ${{ each cluster in context.clusters }}:
-      - template: templates/delete-cluster.yaml
-        parameters:
-          cluster_name: ${{ cluster.value.name }}
-          subscription: ${{ cluster.value.subscription }}
-          region: ${{ cluster.value.region }}
+        - ${{ each test in context.e2e_config }}:
+          - template: ${{ test.value.template }}
+            ${{ if and(ne(test.value.params, ''), gt(test.value.params, 0)) }}:
+              parameters:
+                test_name: ${{ test.value.name }}
+                display_name: ${{ test.value.display_name }}
+                cluster_name: ${{ cluster.value.name }}
+                subscription: ${{ cluster.value.subscription }}
+                depends_on: 
+                  - create_${{ cluster.value.type }}_cluster_${{ cluster.value.name }}
+                ${{ each param in cluster.value.params }}:
+                  ${{ param.key }}: ${{ param.value }}
+  
+  - ${{ each resource in parameters.e2e_resources }}:
+    - ${{ if eq(resource.key, parameters.suite_name) }}:
+      - ${{ each cluster in resource.value.context.clusters }}:
+        - template: templates/delete-cluster.yaml
+          parameters:
+            cluster_name: ${{ cluster.value.name }}
+            subscription: ${{ cluster.value.subscription }}
+            region: ${{ cluster.value.region }}
