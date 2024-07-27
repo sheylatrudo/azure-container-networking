@@ -19,7 +19,7 @@ parameters:
       - name: ciliume2e-$(commitID)
         type: singletenant
         params:
-          region: $(AKS_CLUSTER_TEST)
+          region: $(REGION_AKS_CLUSTER_TEST)
           subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
           create_cmd: swift-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
@@ -35,7 +35,7 @@ parameters:
       - name: ciliumovere2e-$(commitID)
         type: singletenant
         params:
-          region: $(AKS_CLUSTER_TEST)
+          region: $(REGION_AKS_CLUSTER_TEST)
           subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
           create_cmd: overlay-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
@@ -50,7 +50,7 @@ parameters:
       - name: cildsovere2e-$(commitID)
         type: singletenant
         params:
-          region: $(AKS_CLUSTER_TEST)
+          region: $(REGION_AKS_CLUSTER_TEST)
           subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
           create_cmd: dualstack-overlay-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
