@@ -179,22 +179,17 @@ stages:
     suite_name: cilium
     display_name: Cilium
 
-# Cilium Overlay E2E tests
-- template: template.e2e-tests.yaml
-  parameters:
-    suite_name: cilium_overlay
-    display_name: Cilium on AKS Overlay
-#- template: singletenancy/cilium-overlay/cilium-overlay-e2e.stages.yaml
+## Cilium Overlay E2E tests
+#- template: template.e2e-tests.yaml
 #  parameters:
-#    name: "cilium_overlay_e2e"
-#    displayName: Cilium on AKS Overlay
-#    clusterType: overlay-byocni-nokubeproxy-up
-#    clusterName: "cilovere2e"
-#    vmSize: Standard_B2ms
-#    k8sVersion: ""
-#    dependsOn: "containerize"
+#    suite_name: cilium_overlay
+#    display_name: Cilium on AKS Overlay
 #
 ## Cilium Dualstack Overlay E2E tests
+#- template: template.e2e-tests.yaml
+#  parameters:
+#    suite_name: cilium_overlay_dualstack
+#    display_name: Cilium on DualStack AKS Overlay
 #- template: singletenancy/cilium-dualstack-overlay/cilium-dualstackoverlay-e2e.stages.yaml
 #  parameters:
 #    name: "cilium_dualstackoverlay_e2e"
