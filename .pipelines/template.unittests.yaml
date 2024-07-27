@@ -6,8 +6,8 @@ stages:
   variables:
     STORAGE_ID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.StorageID'] ]
   jobs:
-  - job: run_all
-    displayName: Run All Unit Tests
+  - job:
+    displayName: Test ACN Linux
     pool:
       type: windows
       isCustom: true

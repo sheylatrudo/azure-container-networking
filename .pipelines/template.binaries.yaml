@@ -4,6 +4,7 @@ stages:
   displayName: Build Binaries
   dependsOn:
     - setup
+    - unittest
   jobs:
     - job: build
       displayName: Build Binaries
@@ -20,8 +21,8 @@ stages:
           displayName: "Build all platform binaries"
 
         - script: |
-            mkdir -p ./output/bins
-            cd ./output
+            mkdir -p ./drop_binaries_build/bins
+            cd ./drop_binaries_build
             find . -name '*.tgz' -print -exec mv -t ./bins/ {} +
             find . -name '*.zip' -print -exec mv -t ./bins/ {} +
             shopt -s extglob
@@ -36,6 +37,6 @@ stages:
         # updated from 'output'
         - task: PublishPipelineArtifact@1
           inputs:
-            artifact: "drop_binaries_build"
+            artifact: drop_binaries_build
             targetPath: $(Build.ArtifactStagingDirectory)
             publishLocation: pipeline

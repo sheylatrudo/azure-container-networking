@@ -3,6 +3,7 @@ stages:
   displayName: Build Images
   dependsOn:
     - setup
+    - unittest
   jobs:
     - job: containerize_amd64
       displayName: Build Images
