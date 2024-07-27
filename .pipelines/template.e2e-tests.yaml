@@ -30,6 +30,7 @@ parameters:
           subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
           create_cmd: swift-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
+
 #    cilium_overlay:
 #      display_name: Cilium on AKS Overlay
 #      e2e_config:
@@ -48,7 +49,7 @@ parameters:
         
           
 stages:
-- stage: e2e_${{ replace(parameters.suite_name, '-', '_') }}
+- stage: e2e_${{ parameters.suite_name }}
   displayName: Run ${{ parameters.display_name }} E2E Tests
   dependsOn:
     - setup
