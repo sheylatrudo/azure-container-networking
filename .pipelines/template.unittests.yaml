@@ -6,7 +6,7 @@ stages:
   variables:
     STORAGE_ID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.StorageID'] ]
   jobs:
-  - job:
+  - job: acn_linux
     displayName: Test ACN Linux
     pool:
       type: windows
@@ -33,7 +33,7 @@ stages:
 
     - task: PublishPipelineArtifact@1
       inputs:
-        artifact: drop_unittest_run_all
+        artifact: drop_unittest_acn_linux
         targetPath: $(Build.ArtifactStagingDirectory)
         publishLocation: pipeline
 
