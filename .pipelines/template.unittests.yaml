@@ -1,13 +1,13 @@
 stages:
 - stage: unittest
-  displayName: Test ACN
+  displayName: ACN UnitTests
   dependsOn:
     - setup
+  variables:
+    STORAGE_ID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.StorageID'] ]
   jobs:
   - job: run_all
     displayName: Run All Unit Tests
-    variables:
-      STORAGE_ID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.StorageID'] ]
     pool:
       type: windows
       isCustom: true
@@ -38,15 +38,12 @@ stages:
         publishLocation: pipeline
 
   - job:
-    displayName: Run NPM Unit Tests
-    variables:
-      STORAGE_ID: $[ stagedependencies.setup.env.outputs['EnvironmentalVariables.StorageID'] ]
+    displayName: Test ACN Windows
     pool:
       type: windows
       isCustom: true
-      name: $(BUILD_POOL_NAME_DEFAULT)
+      name: $(BUILD_POOL_NAME_DEFAULT_WINDOWS_ALT)
     steps:
-      - checkout: self
       - script: |
           cd npm/
           go test ./...
