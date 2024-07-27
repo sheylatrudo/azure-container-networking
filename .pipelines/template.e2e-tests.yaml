@@ -1,8 +1,6 @@
 parameters:
 - name: suite_name
   type: string
-  values:
-    - cilium
 
 - name: display_name
   type: string

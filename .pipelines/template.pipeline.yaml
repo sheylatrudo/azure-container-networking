@@ -179,7 +179,11 @@ stages:
     suite_name: cilium
     display_name: Cilium
 
-## Cilium Overlay E2E tests
+# Cilium Overlay E2E tests
+- template: template.e2e-tests.yaml
+  parameters:
+    suite_name: cilium_overlay
+    display_name: Cilium on AKS Overlay
 #- template: singletenancy/cilium-overlay/cilium-overlay-e2e.stages.yaml
 #  parameters:
 #    name: "cilium_overlay_e2e"
