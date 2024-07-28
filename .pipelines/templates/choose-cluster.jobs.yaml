@@ -16,7 +16,7 @@ parameters:
   type: object
 
 jobs:
-- job: create_${{ parameters.cluster_type }}_cluster_${{ parameters.cluster_name }}
+- job: create_${{ parameters.cluster_type }}_cluster_$(System.StageName)
   displayName: Provision Cluster (${{ parameters.cluster_type }})
   pool: 
     type: windows
