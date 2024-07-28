@@ -40,7 +40,7 @@ steps:
       processes: 8
       attempts: 10
 
-- ${{ elseif eq(parameters.dns, true) }}:
+- ${{ elseif eq(parameters.test_selection, dns) }}:
   - template: k8s-e2e.steps.yaml
     parameters:
       test_name: DNS
@@ -51,7 +51,7 @@ steps:
       processes: 8
       attempts: 3
 
-- ${{ elseif eq(parameters.portforward, true) }}:
+- ${{ elseif eq(parameters.test_selection, 'portforward') }}:
   - template: k8s-e2e.steps.yaml
     parameters:
       test_name: Kubectl Portforward
@@ -62,7 +62,7 @@ steps:
       processes: 8
       attempts: 3
 
-- ${{ elseif eq(parameters.hostport, true) }}:
+- ${{ elseif eq(parameters.test_selection, 'hostport') }}:
   - template: k8s-e2e.steps.yaml
     parameters:
       test_name: Host Port
@@ -73,7 +73,7 @@ steps:
       processes: 1 # Has a short serial test
       attempts: 3
 
-- ${{ elseif eq(parameters.hybrid, true) }}:
+- ${{ elseif eq(parameters.test_selection, 'hybrid') }}:
   - ${{ if ne(parameters.os, 'windows') }}:
     - template: k8s-e2e.steps.yaml
       parameters:
@@ -87,7 +87,7 @@ steps:
   - ${{ else }}:
     - bash: echo >&2 "Hybrid Network Test only supported in Windows OS. Skipping."
 
-- ${{ elseif eq(parameters.dualstack, true) }}:
+- ${{ elseif eq(parameters.test_selection, 'dualstack') }}:
   - template: k8s-e2e.steps.yaml
     parameters:
       name: DualStack
@@ -104,7 +104,7 @@ steps:
         test_name: DualStack Test|Cilium
         ginkgo_skip: 'SCTP|session affinity|should function for service endpoints using hostNetwork' # Cilium dualstack has a known issue with this test https://github.com/cilium/cilium/issues/25135
 
-- ${{ elseif eq(parameters.service, true) }}:
+- ${{ elseif eq(parameters.test_selection, 'service') }}:
   - ${{ if contains(parameters.cni, 'cni') }}:
     - template: k8s-e2e.steps.yaml
       parameters:
