@@ -117,6 +117,9 @@ stages:
       - ${{ each cluster in resource.value.clusters }}:
         - job:
           displayName: Resource Cleanup
+          dependsOn: 
+            - ${{ each test in resource.value.e2e_config }}:
+              - run_e2e_${{ test.name }}
           pool: 
             type: windows
             isCustom: true
@@ -127,6 +130,3 @@ stages:
               cluster_name: ${{ cluster.name }}
               subscription: ${{ cluster.subscription }}
               region: ${{ cluster.region }}
-              depends_on: 
-                - ${{ each test in resource.value.e2e_config }}:
-                  - run_e2e_${{ test.name }}

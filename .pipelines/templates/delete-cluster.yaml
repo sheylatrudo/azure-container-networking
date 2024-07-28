@@ -8,14 +8,9 @@ parameters:
 - name: region
   type: string
 
-- name: depends_on
-  type: object
-  default: ''
-
 
 steps:
 - task: AzureCLI@1
-  dependsOn: ${{ parameters.depends_on }}
   inputs:
     azureSubscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
     scriptLocation: "inlineScript"
