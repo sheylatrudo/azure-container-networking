@@ -130,3 +130,4 @@ stages:
               cluster_name: ${{ cluster.name }}
               subscription: ${{ cluster.subscription }}
               region: ${{ cluster.region }}
+              suite_name: ${{ parameters.suite_name }}

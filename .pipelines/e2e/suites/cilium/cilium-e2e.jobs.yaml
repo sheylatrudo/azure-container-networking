@@ -1,4 +1,7 @@
 parameters:
+- name: suite_name
+  type: string
+
 - name: test_name
   type: string
   values:
@@ -110,3 +113,9 @@ jobs:
       clusterName: ${{ parameters.cluster_name }}
       os: ${{ parameters.template_parameters.os_sku }}
       cni: cilium
+      publish: false
+
+  - publish: $(System.DefaultWorkingDirectory)/${{ parameters.clusterName }}_${{ parameters.logType }}_Attempt_#$(System.StageAttempt)
+    condition: and(always(), parameters.publish)
+    artifact: drop_${{ parameters.suite_name }}_failedE2ELogs
+    displayName: Publish Cluster logs
