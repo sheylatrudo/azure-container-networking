@@ -22,6 +22,8 @@ steps:
       subscription: ${{ parameters.subscription }}
   
   - template: /.pipelines/toolset/k8s/restart-kubeproxy.steps.yaml
+    parameters:
+      os: ${{ parameters.os }}
 
   - ${{ each test in parameters.test_cases }}:
     - template: choose-k8s-e2e-test.steps.yaml
