@@ -84,9 +84,8 @@ steps:
         os: ${{ parameters.os }}
         processes: 8
         attempts: 3
-
   - ${{ else }}:
-    - bash: echo >&2 "Hybrid Network Test only supported in Windows OS (selected: ${{ parameters.os }}. Skipping."
+    - bash: echo >&2 "Hybrid Network Test only supported in Windows OS (selected: ${{ parameters.os }}). Skipping."
 
 - ${{ elseif eq(parameters.dualstack, true) }}:
   - template: k8s-e2e.steps.yaml
