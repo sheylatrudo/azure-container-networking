@@ -7,6 +7,10 @@ parameters:
 
 steps:
 - template: /.pipelines/toolset/k8s/install-kubectl.steps.yaml
+  parameters:
+    cluster_name: ${{ parameters.cluster_name }}
+    subscription: ${{ parameters.subscription }}
+
 
 - bash: |
     go version

@@ -2,16 +2,13 @@ parameters:
 - name: cluster_name
   type: string
 
-- name: k8s_version
-  type: string
-
 - name: subscription
   type: string
   
 steps:
   - task: AzureCLI@1
     inputs:
-      azureSubscription: ${{ parameters.sub }}
+      azureSubscription: ${{ parameters.subscription }}
       scriptLocation: "inlineScript"
       scriptType: "bash"
       addSpnToEnvironment: true

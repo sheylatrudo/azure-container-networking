@@ -83,7 +83,7 @@ jobs:
     parameters:
       subscription: ${{ parameters.subscription }}
       clusterName: ${{ parameters.cluster_name }}
-      os: ${{ parameters.os_sku }}
+      os: ${{ parameters.template_parameters.os_sku }}
       cni: cilium
       dependsOn: run_e2e_${{ parameters.test_name }}
       test_cases:
@@ -106,5 +106,5 @@ jobs:
   - template: ../../../templates/log-template.yaml
     parameters:
       clusterName: ${{ parameters.cluster_name }}
-      os: ${{ parameters.os_sku }}
+      os: ${{ parameters.template_parameters.os_sku }}
       cni: cilium
