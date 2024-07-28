@@ -88,7 +88,7 @@ jobs:
       cluster_name: ${{ parameters.cluster_name }}
       os: ${{ parameters.template_parameters.os_sku }}
       cni: cilium
-      is_dualstack: ${{ contains(parameters.cluster_type, 'dualstack') }}
+      is_dualstack: ${{ contains(parameters.test_name, 'dualstack') }}
       test_cases:
         - datapath
         - dns
