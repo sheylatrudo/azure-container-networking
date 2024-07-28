@@ -40,7 +40,7 @@ steps:
       processes: 8
       attempts: 10
 
-- ${{ elseif eq(parameters.test_selection, dns) }}:
+- ${{ elseif eq(parameters.test_selection, 'dns') }}:
   - template: k8s-e2e.steps.yaml
     parameters:
       test_name: DNS
