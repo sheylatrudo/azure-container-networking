@@ -92,6 +92,7 @@ stages:
           parameters:
             cluster_name: ${{ cluster.name }}
             cluster_type: ${{ cluster.type }}
+            subscription: ${{ cluster.subscription }}
             ${{ if and(ne(cluster.params, ''), gt(length(cluster.params), 0)) }}:
               template_parameters:
                 ${{ each param in cluster.params }}:
