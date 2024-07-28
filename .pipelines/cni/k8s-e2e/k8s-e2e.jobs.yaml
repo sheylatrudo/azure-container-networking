@@ -20,7 +20,6 @@ steps:
     parameters:
       cluster_name: ${{ parameters.cluster_name }}
       subscription: ${{ parameters.subscription }}
-      k8s_version: ${{ parameters.k8s_version }}
   
   - template: /.pipelines/k8s/actions/restart-kubeproxy.steps.yaml
 
