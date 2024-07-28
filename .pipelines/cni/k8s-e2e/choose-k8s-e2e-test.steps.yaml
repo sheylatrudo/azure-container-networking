@@ -130,7 +130,7 @@ steps:
         attempts: 3
   
   - ${{ else }}:
-    - bash: echo >&2 "Service Test not supported for cni selection: '${{ parameters.cni }}'."
+    - bash: echo >&2 "Service Test not supported for cni selection."
 
 - ${{ else }}:
   - error: Selected Test (${{ parameters.test_selection }}) invalid for cni and os (${{ parameters.cni }} / ${{ parameters.os }}).
