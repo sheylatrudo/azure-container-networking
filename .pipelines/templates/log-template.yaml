@@ -33,7 +33,7 @@ steps:
       inlineScript: |
           make -C ./hack/aks set-kubeconf AZCLI=az CLUSTER=${{ parameters.clusterName }}
 
-          acnLogs=$(System.DefaultWorkingDirectory)/${{ parameters.clusterName }}_${{ parameters.logType }}_Attempt_#$(System.StageAttempt)
+          acnLogs=$(System.DefaultWorkingDirectory)/${{ parameters.clusterName }}_${{ parameters.logType }}_Attempt_$(System.StageAttempt)
           mkdir -p $acnLogs
           echo "Root Directory created: $acnLogs"
           echo "##vso[task.setvariable variable=acnLogs]$acnLogs"
@@ -269,3 +269,8 @@ steps:
       displayName: Windows Logs
       condition: always()
 
+  - ${{ if eq(parameters.publish, true) }}:
+    - publish: $(System.DefaultWorkingDirectory)/${{ parameters.clusterName }}_${{ parameters.logType }}_Attempt_$(System.StageAttempt)
+      condition: always()
+      artifact: ${{ parameters.clusterName }}_${{ parameters.os }}${{ parameters.jobName }}_Attempt_$(System.StageAttempt)
+      displayName: Publish Cluster logs
