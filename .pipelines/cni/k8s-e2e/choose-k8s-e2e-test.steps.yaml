@@ -15,7 +15,7 @@ parameters:
   - linux
 
 - name: is_dualstack
-  type: bool
+  type: boolean
 
 - name: test_selection
   type: string
