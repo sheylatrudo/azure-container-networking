@@ -108,7 +108,7 @@ stages:
                 cluster_name: ${{ cluster.name }}
                 subscription: ${{ cluster.subscription }}
                 depends_on: 
-                  - create_${{ cluster.type }}_cluster_${{ cluster.name }}
+                  - create_${{ cluster.type }}_cluster_${{ variables.System.StageName }}
                 template_parameters:
                   ${{ each param in cluster.params }}:
                     ${{ param.key }}: ${{ param.value }}
@@ -116,7 +116,7 @@ stages:
   - ${{ each resource in parameters.e2e_resources }}:
     - ${{ if eq(resource.key, parameters.suite_name) }}:
       - ${{ each cluster in resource.value.clusters }}:
-        - job:
+        - job: cleanup
           displayName: Resource Cleanup
           dependsOn: 
             - ${{ each test in resource.value.e2e_config }}:
