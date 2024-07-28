@@ -16,12 +16,12 @@ parameters:
 
 
 steps:
-  - template: /.pipelines/k8s/install-kubectl.steps.yaml
+  - template: /.pipelines/toolset/k8s/install-kubectl.steps.yaml
     parameters:
       cluster_name: ${{ parameters.cluster_name }}
       subscription: ${{ parameters.subscription }}
   
-  - template: /.pipelines/k8s/actions/restart-kubeproxy.steps.yaml
+  - template: /.pipelines/toolset/k8s/restart-kubeproxy.steps.yaml
 
   - ${{ each test in parameters.test_cases }}:
     - template: choose-k8s-e2e-test.steps.yaml
