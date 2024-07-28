@@ -107,8 +107,9 @@ stages:
 #                subscription: ${{ cluster.subscription }}
                 depends_on: 
                   - create_${{ cluster.type }}_cluster_${{ cluster.name }}
-                ${{ each param in cluster.params }}:
-                  ${{ param.key }}: ${{ param.value }}
+                template_parameters:
+                  ${{ each param in cluster.params }}:
+                    ${{ param.key }}: ${{ param.value }}
   
   - ${{ each resource in parameters.e2e_resources }}:
     - ${{ if eq(resource.key, parameters.suite_name) }}:

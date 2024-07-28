@@ -16,15 +16,12 @@ parameters:
 - name: subscription 
   type: string
 
-- name: os
-  type: string
-  values:
-  - linux
-  - windows
-
 - name: depends_on
   type: object
   default: ''
+
+- name: template_parameters
+  type: object
 
 jobs:
 - job: run_e2e_${{ parameters.test_name }}
@@ -39,6 +36,17 @@ jobs:
     - agent.os -equals Linux
     - Role -equals $(CUSTOM_E2E_ROLE)
   steps:
+  - bash: |
+      set -e
+      if [[ -n $OS ]]; then
+        echo >&2 "'os_sku' is required param for 'cilium-e2e.jobs.yaml' template."
+        exit 1
+      fi      
+    name: param_precheck
+    displayName: Verify Template Parameters
+    env:
+      OS: ${{ parameters.template_parameters.os_sku
+
   - ${{ if eq(parameters.test_name, 'cilium_linux') }}:
     - template: tests/cilium.steps.yaml
   - ${{ elseif eq(parameters.test_name, 'cilium_overlay_linux') }}:
@@ -53,7 +61,7 @@ jobs:
 
 - job: cni_${{ parameters.test_name }}
   condition: and( not(canceled()), not(failed()) )
-  displayName: CNI k8s E2E ${{ parameters.os }}
+  displayName: CNI k8s E2E ${{ parameters.template_parameters.os_sku }}
   dependsOn: ${{ parameters.depends_on }}
   pool: 
     type: windows
@@ -64,7 +72,7 @@ jobs:
     parameters:
       subscription: ${{ parameters.subscription }}
       clusterName: ${{ parameters.cluster_name }}
-      os: ${{ parameters.os }}
+      os: ${{ parameters.os_sku }}
       cni: cilium
       dependsOn: run_e2e_${{ parameters.test_name }}
       test_cases:
@@ -87,5 +95,5 @@ jobs:
   - template: ../../../templates/log-template.yaml
     parameters:
       clusterName: ${{ parameters.cluster_name }}
-      os: ${{ parameters.os }}
+      os: ${{ parameters.os_sku }}
       cni: cilium
