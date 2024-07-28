@@ -269,8 +269,3 @@ steps:
       displayName: Windows Logs
       condition: always()
 
-  - ${{ if eq(parameters.publish, true) }}:
-    - publish: $(System.DefaultWorkingDirectory)/${{ parameters.clusterName }}_${{ parameters.logType }}_Attempt_#$(System.StageAttempt)
-      condition: always()
-      artifact: ${{ parameters.clusterName }}_${{ parameters.os }}${{ parameters.jobName }}_Attempt_#$(System.StageAttempt)
-      displayName: Publish Cluster logs
