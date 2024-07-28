@@ -73,7 +73,10 @@ jobs:
 - job: cni_${{ parameters.test_name }}
   condition: and( not(canceled()), not(failed()) )
   displayName: CNI k8s E2E ${{ parameters.template_parameters.os_sku }}
-  dependsOn: ${{ parameters.depends_on }}
+  dependsOn: 
+   - run_e2e_${{ parameters.test_name }}
+   - ${{ each dep in parameters.depends_on }}:
+     - ${{ dep }}
   pool: 
     type: windows
     isCustom: true
@@ -85,7 +88,6 @@ jobs:
       cluster_name: ${{ parameters.cluster_name }}
       os: ${{ parameters.template_parameters.os_sku }}
       cni: cilium
-      dependsOn: run_e2e_${{ parameters.test_name }}
       test_cases:
         - datapath
         - dns
@@ -95,7 +97,6 @@ jobs:
 - job: failedE2ELogs
   displayName: "Failure Logs"
   dependsOn:
-    - run_e2e_${{ parameters.test_name }}
     - cni_${{ parameters.test_name }}
   condition: failed()
   pool: 
