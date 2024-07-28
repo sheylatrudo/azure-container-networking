@@ -129,4 +129,4 @@ stages:
               region: ${{ cluster.region }}
               depends_on: 
                 - ${{ each test in resource.value.e2e_config }}:
-                  - run_e2e_${{ test }}
+                  - run_e2e_${{ test.name }}
