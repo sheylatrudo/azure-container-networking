@@ -21,4 +21,4 @@ steps:
     displayName: Restart Kubeproxy on Windows nodes
     retryCountOnTaskFailure: 3
 - ${{ else }}:
-  - info: Kube proxy restart action not available for Linux.
+  - bash: echo >&2 "Kube proxy restart action not implemented for Linux."
