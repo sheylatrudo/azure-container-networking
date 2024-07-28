@@ -115,7 +115,7 @@ jobs:
       cni: cilium
       publish: false
 
-  - publish: $(System.DefaultWorkingDirectory)/${{ parameters.clusterName }}_${{ parameters.logType }}_Attempt_#$(System.StageAttempt)
+  - publish: $(System.DefaultWorkingDirectory)/${{ parameters.cluster_name }}_failure_Attempt_#$(System.StageAttempt)
     condition: and(always(), parameters.publish)
     artifact: drop_${{ parameters.suite_name }}_failedE2ELogs
     displayName: Publish Cluster logs
