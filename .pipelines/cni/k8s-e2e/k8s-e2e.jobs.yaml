@@ -11,6 +11,9 @@ parameters:
 - name: subscription
   type: string
 
+- name: is_dualstack
+  type: boolean
+
 - name: test_cases
   type: object
 
