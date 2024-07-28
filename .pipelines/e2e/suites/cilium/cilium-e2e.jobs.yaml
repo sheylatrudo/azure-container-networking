@@ -118,6 +118,6 @@ jobs:
   - task: PublishPipelineArtifact@1
     condition: always()
     inputs:
-      artifact: drop_$(System.StageName)_$(System.JobName)
+      artifact: 'drop_$(System.StageName)_$(System.JobName)'
       targetPath: $(System.DefaultWorkingDirectory)/${{ parameters.cluster_name }}_failure_Attempt_#$(System.StageAttempt)
-      publishLocation: pipeline
+      publishLocation: 'pipeline'
