@@ -49,15 +49,26 @@ jobs:
 
   - ${{ if eq(parameters.test_name, 'cilium_linux') }}:
     - template: tests/cilium.steps.yaml
+      parameters:
+        cluster_name: ${{ parameters.cluster_name }}
+        subscription: ${{ parameters.subscription }}
   - ${{ elseif eq(parameters.test_name, 'cilium_overlay_linux') }}:
     - template: tests/cilium/cilium-overlay.steps.yaml
+      parameters:
+        cluster_name: ${{ parameters.cluster_name }}
+        subscription: ${{ parameters.subscription }}
   - ${{ elseif eq(parameters.test_name, 'cilium_overlay_dualstack') }}:
     - template: tests/cilium/cilium-overlay-dualstack.steps.yaml
+      parameters:
+        cluster_name: ${{ parameters.cluster_name }}
+        subscription: ${{ parameters.subscription }}
   - ${{ elseif eq(parameters.test_name, 'cilium_overlay_withhubble') }}:
     - template: tests/cilium/cilium-overlay-withhubble.steps.yaml
-    parameters:
-      cluster_name: ${{ parameters.cluster_name }}
-      subscription: ${{ parameters.subscription }}
+      parameters:
+        cluster_name: ${{ parameters.cluster_name }}
+        subscription: ${{ parameters.subscription }}
+  - ${{ else }}:
+    - error: Invalid test selection (${{ parameters.test_name }})
 
 - job: cni_${{ parameters.test_name }}
   condition: and( not(canceled()), not(failed()) )
