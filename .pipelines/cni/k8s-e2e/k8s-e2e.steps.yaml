@@ -70,7 +70,7 @@ steps:
       if [[ $OS = linux ]]; then
         kubectl taint nodes -l kubernetes.azure.com/mode=user node-role.kubernetes.io/control-plane:NoSchedule-
       fi
-    displayName: [${{ parameters.test_name }}] K8s E2E
+    displayName: K8s E2E - ${{ parameters.test_name }}
     env:
       GINKGO_SKIP: ${{ parameters.ginkgo_skip }}
       GINKGO_FOCUS: ${{ parameters.ginkgo_focus }}
