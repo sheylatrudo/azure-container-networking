@@ -82,7 +82,7 @@ jobs:
   - template: ../../../cni/k8s-e2e/k8s-e2e.jobs.yaml
     parameters:
       subscription: ${{ parameters.subscription }}
-      clusterName: ${{ parameters.cluster_name }}
+      cluster_name: ${{ parameters.cluster_name }}
       os: ${{ parameters.template_parameters.os_sku }}
       cni: cilium
       dependsOn: run_e2e_${{ parameters.test_name }}
