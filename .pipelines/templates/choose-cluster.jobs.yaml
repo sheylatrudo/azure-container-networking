@@ -35,7 +35,7 @@ jobs:
         create_cmd: ${{ parameters.template_parameters.create_cmd }}
         ${{ if ne(parameters.template_parameters.os_sku, '') }}:
           os_sku: ${{ parameters.template_parameters.os_sku }}
-        ${{ if ne(parameters.template_parameters.vm_size, '' }}:
+        ${{ if ne(parameters.template_parameters.vm_size, '') }}:
           vm_size: ${{ parameters.template_parameters.vm_size }}
         ${{ if ne(parameters.template_parameters.os_sku_win, '') }}:
           os_sku_win: ${{ parameters.template_parameters.os_sku_win }}
