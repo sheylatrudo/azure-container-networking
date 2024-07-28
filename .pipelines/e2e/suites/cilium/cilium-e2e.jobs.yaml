@@ -45,7 +45,7 @@ jobs:
     name: param_precheck
     displayName: Verify Template Parameters
     env:
-      OS: ${{ parameters.template_parameters.os_sku
+      OS: ${{ parameters.template_parameters.os_sku }}
 
   - ${{ if eq(parameters.test_name, 'cilium_linux') }}:
     - template: tests/cilium.steps.yaml
