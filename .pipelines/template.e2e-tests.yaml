@@ -18,9 +18,9 @@ parameters:
       clusters:
       - name: ciliume2e-$(commitID)
         type: singletenant
+        subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
         params:
           region: $(REGION_AKS_CLUSTER_TEST)
-          subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
           create_cmd: swift-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
           os_sku: linux
@@ -34,9 +34,9 @@ parameters:
       clusters:
       - name: ciliumovere2e-$(commitID)
         type: singletenant
+        subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
         params:
           region: $(REGION_AKS_CLUSTER_TEST)
-          subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
           create_cmd: overlay-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
     cilium_overlay_dualstack:
@@ -49,9 +49,9 @@ parameters:
       clusters:
       - name: cildsovere2e-$(commitID)
         type: singletenant
+        subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
         params:
           region: $(REGION_AKS_CLUSTER_TEST)
-          subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
           create_cmd: dualstack-overlay-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
         
@@ -104,7 +104,7 @@ stages:
                 test_name: ${{ test.name }}
                 display_name: ${{ test.display_name }}
                 cluster_name: ${{ cluster.name }}
-#                subscription: ${{ cluster.subscription }}
+                subscription: ${{ cluster.subscription }}
                 depends_on: 
                   - create_${{ cluster.type }}_cluster_${{ cluster.name }}
                 template_parameters:
