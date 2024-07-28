@@ -116,6 +116,6 @@ jobs:
       publish: false
 
   - publish: $(System.DefaultWorkingDirectory)/${{ parameters.cluster_name }}_failure_Attempt_#$(System.StageAttempt)
-    condition: and(always(), parameters.publish)
+    condition: always()
     artifact: drop_e2e_${{ parameters.suite_name }}_failedE2ELogs
     displayName: Publish Cluster logs
