@@ -98,7 +98,7 @@ jobs:
         - portforward
         - service
 
-- job: failurelogs_${{ parameters.test_name }}_$(System.StageAttempt)
+- job: failurelogs_${{ parameters.test_name }}
   displayName: "Failure Logs"
   dependsOn:
     - cni_${{ parameters.test_name }}
@@ -118,6 +118,6 @@ jobs:
   - task: PublishPipelineArtifact@1
     condition: always()
     inputs:
-      artifact: drop_e2e_${{ parameters.suite_name }}_failurelogs_${{ parameters.test_name }}_$(System.StageAttempt)
+      artifact: drop_e2e_${{ parameters.suite_name }}_failurelogs_${{ parameters.test_name }}
       targetPath: $(System.DefaultWorkingDirectory)/${{ parameters.cluster_name }}_failure_Attempt_#$(System.StageAttempt)
       publishLocation: pipeline
