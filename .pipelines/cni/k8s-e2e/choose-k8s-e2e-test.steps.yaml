@@ -34,8 +34,8 @@ steps:
     parameters:
       test_name: Datapath
       name: datapath
-      ginkgoFocus: '(.*).Networking.should|(.*).Networking.Granular|(.*)kubernetes.api'
-      ginkgoSkip: 'SCTP|Disruptive|Slow|hostNetwork|kube-proxy|IPv6'
+      ginkgo_focus: '(.*).Networking.should|(.*).Networking.Granular|(.*)kubernetes.api'
+      ginkgo_skip: 'SCTP|Disruptive|Slow|hostNetwork|kube-proxy|IPv6'
       os: ${{ parameters.os }}
       processes: 8
       attempts: 10
@@ -45,8 +45,8 @@ steps:
     parameters:
       test_name: DNS
       name: dns
-      ginkgoFocus: '\[sig-network\].DNS.should'
-      ginkgoSkip: 'resolv|256 search'
+      ginkgo_focus: '\[sig-network\].DNS.should'
+      ginkgo_skip: 'resolv|256 search'
       os: ${{ parameters.os }}
       processes: 8
       attempts: 3
@@ -56,8 +56,8 @@ steps:
     parameters:
       test_name: Kubectl Portforward
       name: portforward
-      ginkgoFocus: '\[sig-cli\].Kubectl.Port'
-      ginkgoSkip: ''
+      ginkgo_focus: '\[sig-cli\].Kubectl.Port'
+      ginkgo_skip: ''
       os: ${{ parameters.os }}
       processes: 8
       attempts: 3
@@ -67,8 +67,8 @@ steps:
     parameters:
       test_name: Host Port
       name: hostport
-      ginkgoFocus: '\[sig-network\](.*)HostPort|\[sig-scheduling\](.*)hostPort'
-      ginkgoSkip: 'SCTP|exists conflict' # Skip slow 5 minute test
+      ginkgo_focus: '\[sig-network\](.*)HostPort|\[sig-scheduling\](.*)hostPort'
+      ginkgo_skip: 'SCTP|exists conflict' # Skip slow 5 minute test
       os: ${{ parameters.os }}
       processes: 1 # Has a short serial test
       attempts: 3
@@ -79,8 +79,8 @@ steps:
       parameters:
         test_name: Hybrid Network
         name: hybrid
-        ginkgoFocus: '\[sig-windows\].Hybrid'
-        ginkgoSkip: ''
+        ginkgo_focus: '\[sig-windows\].Hybrid'
+        ginkgo_skip: ''
         os: ${{ parameters.os }}
         processes: 8
         attempts: 3
@@ -92,25 +92,25 @@ steps:
     parameters:
       name: DualStack
       clusterName: ${{ parameters.cluster_name }}
-      ginkgoFocus: '\[Feature:IPv6DualStack\]'
+      ginkgo_focus: '\[Feature:IPv6DualStack\]'
       os: ${{ parameters.os }}
       processes: 8
       attempts: 3
       ${{ if not(contains(parameters.cni, 'cilium')) }}:
         test_name: DualStack Test
-        ginkgoSkip: 'SCTP|session affinity'
+        ginkgo_skip: 'SCTP|session affinity'
 
       ${{ else }}:
         test_name: DualStack Test|Cilium
-        ginkgoSkip: 'SCTP|session affinity|should function for service endpoints using hostNetwork' # Cilium dualstack has a known issue with this test https://github.com/cilium/cilium/issues/25135
+        ginkgo_skip: 'SCTP|session affinity|should function for service endpoints using hostNetwork' # Cilium dualstack has a known issue with this test https://github.com/cilium/cilium/issues/25135
 
 - ${{ elseif eq(parameters.service, true) }}:
   - ${{ if contains(parameters.cni, 'cni') }}:
     - template: k8s-e2e.steps.yaml
       parameters:
         test_name: Service Conformance
-        ginkgoFocus: 'Services.*\[Conformance\].*'
-        ginkgoSkip: ''
+        ginkgo_focus: 'Services.*\[Conformance\].*'
+        ginkgo_skip: ''
         os: ${{ parameters.os }}
         name: service
         processes: 8
@@ -120,10 +120,10 @@ steps:
     - template: k8s-e2e.steps.yaml
       parameters:
         test_name: Service Conformance|Cilium
-        ginkgoFocus: 'Services.*\[Conformance\].*'
+        ginkgo_focus: 'Services.*\[Conformance\].*'
         # Cilium does not support this feature. For more info on test: 
         # https://github.com/kubernetes/kubernetes/blame/e602e9e03cd744c23dde9fee09396812dd7bdd93/test/conformance/testdata/conformance.yaml#L1780-L1788
-        ginkgoSkip: 'should serve endpoints on same port and different protocols' 
+        ginkgo_skip: 'should serve endpoints on same port and different protocols' 
         os: ${{ parameters.os }}
         name: service
         processes: 8
