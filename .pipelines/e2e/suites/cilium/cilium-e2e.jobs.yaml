@@ -4,8 +4,8 @@ parameters:
   values:
   - cilium_linux
   - cilium_overlay_linux
-  - cilium_overlay_dualstack
-  - cilium_overlay_withhubble
+  - cilium_overlay_dualstack_linux
+  - cilium_overlay_withhubble_linux
 
 - name: display_name
   type: string
@@ -46,12 +46,12 @@ jobs:
       parameters:
         cluster_name: ${{ parameters.cluster_name }}
         subscription: ${{ parameters.subscription }}
-  - ${{ elseif eq(parameters.test_name, 'cilium_overlay_dualstack') }}:
+  - ${{ elseif eq(parameters.test_name, 'cilium_overlay_dualstack_linux') }}:
     - template: tests/cilium-overlay-dualstack.steps.yaml
       parameters:
         cluster_name: ${{ parameters.cluster_name }}
         subscription: ${{ parameters.subscription }}
-  - ${{ elseif eq(parameters.test_name, 'cilium_overlay_withhubble') }}:
+  - ${{ elseif eq(parameters.test_name, 'cilium_overlay_withhubble_linux') }}:
     - template: tests/cilium-overlay-withhubble.steps.yaml
       parameters:
         cluster_name: ${{ parameters.cluster_name }}

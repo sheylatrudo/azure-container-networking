@@ -58,7 +58,7 @@ parameters:
           os_sku: linux
     cilium_overlay_withhubble:
       e2e_config:
-      - name: cilium_overlay_withhubble
+      - name: cilium_overlay_withhubble_linux
         display_name: Cilium on AKS Overlay with Hubble
         template: /.pipelines/e2e/suites/cilium/cilium-e2e.jobs.yaml
         params:
