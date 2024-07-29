@@ -45,12 +45,24 @@ variables:
 #  Codeql.ADO.Build.SourceBranch: $[ resources.repositories['self'].ref ]
 #  Codeql.ADO.Build.SourceBranchName: $[ replace(resources.repositories['self'].ref, 'refs/heads/', '') ]
 
+#pool:
+#  type: windows
+#  isCustom: true
+#  name: $(BUILD_POOL_NAME_DEFAULT)
+#
+#  type: linux
+#  isCustom: true
+#  name: $(BUILD_POOL_NAME_DEFAULT)
+#  demands:
+#  - agent.os -equals Linux
+#  - Role -equals $(CUSTOM_E2E_ROLE)
 
 extends:
-  template: v2/OneBranch.Official.CrossPlat.yml@templates
+  template: v2/OneBranch.NonOfficial.CrossPlat.yml@templates
   parameters:
     featureFlags:
       linuxEsrpSigningPreview: true
+      skipPoliciesValidation: true
     globalSdl:
       codeql: # https://eng.ms/docs/cloud-ai-platform/devdiv/one-engineering-system-1es/1es-docs/codeql/one-branch-codeql
         compiled:
@@ -65,12 +77,18 @@ extends:
       credscan:
         enabled: true
         suppressionsFileForArtifacts: /.config/CredScanSuppressions.json
+      sbom:
+        enabled: true
     stages:
     - stage: setup
       displayName: ACN
       jobs:
         - job: env
           displayName: Setup
+          pool:
+            type: windows
+            isCustom: true
+            name: $(BUILD_POOL_NAME_DEFAULT)
           steps:
             - script: |
                 # To use the variables below, you must make the respective stage's dependsOn have - setup or it will not retain context of this stage
@@ -93,9 +111,7 @@ extends:
               name: "EnvironmentalVariables"
               displayName: "Set environmental variables"
               condition: always()
-    #- ${{ if contains(variables['Build.SourceBranch'], 'refs/pull') }}:
-    - template: template.binaries.yaml
     - template: template.unittests.yaml
+    - template: template.binaries.yaml
     - template: template.pipeline.yaml
-    #- ${{ else }}:
-    #  - template: template.pullrequest.yaml
+
