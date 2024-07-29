@@ -42,17 +42,17 @@ jobs:
         cluster_name: ${{ parameters.cluster_name }}
         subscription: ${{ parameters.subscription }}
   - ${{ elseif eq(parameters.test_name, 'cilium_overlay_linux') }}:
-    - template: tests/cilium/cilium-overlay.steps.yaml
+    - template: tests/cilium-overlay.steps.yaml
       parameters:
         cluster_name: ${{ parameters.cluster_name }}
         subscription: ${{ parameters.subscription }}
   - ${{ elseif eq(parameters.test_name, 'cilium_overlay_dualstack') }}:
-    - template: tests/cilium/cilium-overlay-dualstack.steps.yaml
+    - template: tests/cilium-overlay-dualstack.steps.yaml
       parameters:
         cluster_name: ${{ parameters.cluster_name }}
         subscription: ${{ parameters.subscription }}
   - ${{ elseif eq(parameters.test_name, 'cilium_overlay_withhubble') }}:
-    - template: tests/cilium/cilium-overlay-withhubble.steps.yaml
+    - template: tests/cilium-overlay-withhubble.steps.yaml
       parameters:
         cluster_name: ${{ parameters.cluster_name }}
         subscription: ${{ parameters.subscription }}
