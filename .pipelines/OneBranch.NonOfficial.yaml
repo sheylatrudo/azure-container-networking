@@ -63,6 +63,7 @@ extends:
     featureFlags:
       linuxEsrpSigningPreview: true
       skipPoliciesValidation: true
+      skipOfficialValidation: true
     globalSdl:
       codeql: # https://eng.ms/docs/cloud-ai-platform/devdiv/one-engineering-system-1es/1es-docs/codeql/one-branch-codeql
         compiled:
