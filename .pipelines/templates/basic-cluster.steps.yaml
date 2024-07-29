@@ -85,6 +85,8 @@ steps:
       mkdir -p ~/.kube/
       make -C ./hack/aks azcfg AZCLI=az
 
+      echo >&2 "##[info]Get Subscription ID"
+      SUB=$(az account show -o json | jq -r '.id')  
       echo >&2 "##[group]Create Cluster"
       make -C ./hack/aks "${CREATE_CLUSTER_CMD}" AZCLI=az
       echo >&2 "##[endgroup]"
@@ -93,7 +95,6 @@ steps:
     CREATE_CLUSTER_CMD: ${{ parameters.create_cmd }}
     IS_DUALSTACK: ${{ parameters.is_dualstack }}
     REGION: ${{ parameters.region }}
-    SUB: ${{ parameters.subscription }}
     CLUSTER: ${{ parameters.cluster_name }}
     VM_SIZE: ${{ parameters.vm_size }}
     OS: ${{ parameters.os_sku }}
