@@ -39,6 +39,7 @@ parameters:
           region: $(REGION_AKS_CLUSTER_TEST)
           create_cmd: overlay-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
+          os_sku: linux
     cilium_overlay_dualstack:
       e2e_config:
       - name: cilium_overlay_dualstack_linux
@@ -54,6 +55,7 @@ parameters:
           region: $(REGION_AKS_CLUSTER_TEST)
           create_cmd: dualstack-overlay-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
+          os_sku: linux
     cilium_overlay_withhubble:
       e2e_config:
       - name: cilium_overlay_withhubble
@@ -69,6 +71,7 @@ parameters:
           region: $(REGION_AKS_CLUSTER_TEST)
           create_cmd: overlay-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
+          os_sku: linux
         
           
 stages:
