@@ -11,12 +11,17 @@ parameters:
 
 steps:
 - task: AzureCLI@2
+  condition: always()
   inputs:
-    azureSubscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
+    azureSubscription: ${{ parameters.subscription }}
     scriptLocation: "inlineScript"
     scriptType: "bash"
     addSpnToEnvironment: true
     inlineScript: |
+      echo >&2 "##[info]Get Subscription ID"
+      SUB=$(az account show -o json | jq -r '.id')  
+      export SUB
+
       echo "Deleting cluster"
       make -C ./hack/aks azcfg AZCLI=az
       make -C ./hack/aks set-kubeconf AZCLI=az
@@ -26,4 +31,3 @@ steps:
   env:
     REGION: ${{ parameters.region }}
     CLUSTER: ${{ parameters.cluster_name }}
-    SUB: ${{ parameters.subscription }}

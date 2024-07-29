@@ -1,7 +1,4 @@
 parameters:
-- name: suite_name
-  type: string
-
 - name: test_name
   type: string
   values:
@@ -39,17 +36,6 @@ jobs:
     - agent.os -equals Linux
     - Role -equals $(CUSTOM_E2E_ROLE)
   steps:
-  - bash: |
-      set -e
-      if [[ -n $OS ]]; then
-        echo >&2 "'os_sku' is required param for 'cilium-e2e.jobs.yaml' template."
-        exit 1
-      fi      
-    name: param_precheck
-    displayName: Verify Template Parameters
-    env:
-      OS: ${{ parameters.template_parameters.os_sku }}
-
   - ${{ if eq(parameters.test_name, 'cilium_linux') }}:
     - template: tests/cilium.steps.yaml
       parameters:
