@@ -87,6 +87,8 @@ steps:
 
       echo >&2 "##[info]Get Subscription ID"
       SUB=$(az account show -o json | jq -r '.id')  
+      # export for make
+      export SUB
       echo >&2 "##[group]Create Cluster"
       make -C ./hack/aks "${CREATE_CLUSTER_CMD}" AZCLI=az
       echo >&2 "##[endgroup]"
