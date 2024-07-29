@@ -20,17 +20,16 @@ parameters:
 - name: create_cmd
   type: string
   values:
-    - swift-byocni-nokubeproxy-up
-    - overlay-byocni-nokubeproxy-up
     - dualstack-byocni-nokubeproxy-up
+    - dualstack-overlay-byocni-up
+    - linux-cniv1-up
     - overlay-byocni-nokubeproxy-up
     - overlay-byocni-up
+    - swift-byocni-nokubeproxy-up
     - swift-byocni-up
-    - vnetscale-swift-byocni-up
-    - linux-cniv1-up
-    - windows-cniv1-up
-    - dualstack-overlay-byocni-up
     - swiftv2-multitenancy-cluster-up
+    - vnetscale-swift-byocni-up
+    - windows-cniv1-up
 
 - name: os_sku
   type: string

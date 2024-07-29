@@ -53,7 +53,7 @@ parameters:
         subscription: $(BUILD_VALIDATIONS_SERVICE_CONNECTION)
         params:
           region: $(REGION_AKS_CLUSTER_TEST)
-          create_cmd: dualstack-overlay-byocni-nokubeproxy-up
+          create_cmd: dualstack-byocni-nokubeproxy-up
           vm_size: Standard_B2ms
           os_sku: linux
     cilium_overlay_withhubble:
