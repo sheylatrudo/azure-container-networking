@@ -87,7 +87,6 @@ stages:
           - template: ${{ test.template }}
             ${{ if and(ne(test.params, ''), gt(length(test.params), 0)) }}:
               parameters:
-                suite_name: ${{ parameters.suite_name }}
                 test_name: ${{ test.name }}
                 display_name: ${{ test.display_name }}
                 cluster_name: ${{ cluster.name }}
